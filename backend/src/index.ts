@@ -3,10 +3,12 @@ import cors from "@fastify/cors";
 import dotEnv from "dotenv"
 import assignGame from "./routes/assignGames.js";
 import loadGames from "./routes/loadGames.js";
+import fastifyWebsocket from "@fastify/websocket";
 dotEnv.config()
 const fastify = Fastify({
   logger: true,
 });
+await fastify.register(fastifyWebsocket)
 await fastify.register(cors, {
   origin: [`${process.env.FRONTEND_URL as string}`], 
   methods: ["GET", "POST", "PUT", "DELETE"],

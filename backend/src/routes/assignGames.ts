@@ -10,8 +10,15 @@ export default function assignGame(
   fastify.post("/api/create-new-game", async (req, reply) => {
     const roomId = crypto.randomUUID();
     room.set(roomId, {
-      players: [],
-      playerCount: 4,
+      players: new Map,
+      started:false,
+      settings:{
+        maxPlayers:4,
+        generation:[1,2,3,4,5,8,9],
+        maxRounds:2,
+        maxTime:60*1000
+      },
+      sockets:new Map()
     });
     reply.status(200).send({
       id: roomId,
