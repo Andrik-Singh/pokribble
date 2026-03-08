@@ -23,7 +23,21 @@ const StartedGame = ({
   sendJsonMessage,
   lastJsonMessage,
 }: StartedGameProps) => {
-  console.log(lastJsonMessage);
+  const drawerName = room.players.find(
+    (p) => p.playerId === room.round.drawerId,
+  );
+  const isDrawer = currentUserId === room.round.drawerId;
+  const [timeRemaining, setTimeRemaining] = useState<number>(
+    room.round.timeRemaining / 1000,
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeRemaining((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (lastJsonMessage?.text && !lastJsonMessage?.room) {
     return (
       <ChoosingPokemon
@@ -32,23 +46,8 @@ const StartedGame = ({
         sendJsonMessage={sendJsonMessage}
       />
     );
-  }
-
-  const drawerName = room.players.find(
-    (p) => p.playerId === room.round.drawerId,
-  );
-  const isDrawer = currentUserId === room.round.drawerId;
-  const [timeRemaining, setTimeRemaining] = useState<number>(
-    room.round.timeRemaining / 1000,
-  );
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeRemaining((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
+  }  
+   return (
     <div>
       <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-200 text-center z-10 flex justify-between">
         <h1>{drawerName?.name} is drawing</h1>
@@ -60,7 +59,7 @@ const StartedGame = ({
         <h3>
           {timeRemaining < 0
             ? "Time's up"
-            : timeRemaining + "Second's remaining"}
+            : timeRemaining + " seconds remaining"}{" "}
         </h3>
         <h3>
           Round {room.round.currentRound}/{room.settings.maxRounds}

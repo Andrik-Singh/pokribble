@@ -10,8 +10,11 @@ export async function choosingPokemon(myRoom: Room, drawerIndex: number) {
   const nonDrawingPlayers = Array.from(myRoom.players.values()).filter(
     (player) => player.playerId !== myRoom.round.drawerId,
   );
-  console.log("drawing", drawingPlayers[0].name);
-  console.log("nonDrawing", nonDrawingPlayers[0].name);
+  console.log("drawing", drawingPlayers[0]?.name);
+  console.log(
+    "nonDrawing",
+    nonDrawingPlayers.map((p) => p.name),
+  );
   const pokemon = [
     await getRandomPokemon(),
     await getRandomPokemon(),

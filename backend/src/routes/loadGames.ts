@@ -187,8 +187,6 @@ export default async function loadGames(fastify: FastifyInstance) {
                 myRoom.round.drawerIndex =
                   (myRoom.round.drawerIndex + 1) % players.length;
               } while (players[myRoom.round.drawerIndex].disconnected);
-
-              // If the drawer index wrapped around, increment the round
               if (myRoom.round.drawerIndex <= previousDrawerIndex) {
                 myRoom.round.currentRound += 1;
               }

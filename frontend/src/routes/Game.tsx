@@ -55,7 +55,10 @@ const Game = () => {
   const [currentUserName, setCurrentUserName] = useState<string | null>(null);
   const { gameId } = useParams();
   const wsUrl = currentUserId
-    ? `${backendUrl}/ws/${gameId}?userId=${currentUserId}&userName=${currentUserName}`
+    ? `${backendUrl}/ws/${gameId}?${new URLSearchParams({
+        userId: currentUserId,
+        userName: currentUserName ?? "",
+      }).toString()}`
     : null;
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +82,6 @@ const Game = () => {
           return;
         }
         const data: RoomResponse = await res.json();
-        console.log(data);
         if (data.userId) {
           localStorage.setItem("pokribble-user-id", data.userId);
           setCurrentUserId(data.userId);

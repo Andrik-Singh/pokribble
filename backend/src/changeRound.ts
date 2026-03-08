@@ -17,10 +17,8 @@ export async function changeRound(myRoom: Room, drawerIndex: number) {
   myRoom.round.drawerId = playerIds[drawerIndex];
 
   // Broadcast out the new round and drawer right away so frontend updates instantly!
-  import("./broadcast.js").then(({ broadcastRoomState }) => {
-    broadcastRoomState(myRoom);
-  });
-
+  const { broadcastRoomState } = await import("./broadcast.js");
+  broadcastRoomState(myRoom);
   myRoom.round.timerId = setInterval(async () => {
     myRoom.round.timeRemaining = standByTime * 1000;
 

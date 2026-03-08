@@ -40,6 +40,8 @@ export function broadcastRoomState(myRoom: Room) {
       round: roundData,
     };
 
-    p.socketReference.send(JSON.stringify({ room: roomPayload }));
+    p.socketReference.send(
+      JSON.stringify({ type: "Room_Update", room: roomPayload }),
+    );
   });
 }
