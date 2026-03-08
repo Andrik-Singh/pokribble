@@ -5,85 +5,101 @@ type Players = {
   score: number;
   socketReference?: WebSocket;
   name: string;
+  disconnected: boolean;
 };
 type Settings = {
   maxPlayers: number;
   generation: (1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)[];
-  maxTime:number;
-  maxRounds:number;
+  maxTime: number;
+  maxRounds: number;
+};
+type PokemonDescription = {
+  name: string;
+  image: string;
+};
+type Round = {
+  pokemon?: PokemonDescription;
+  drawerId?: string;
+  currentRound: number;
+  drawerIndex: number;
+  timeRemaining: number;
+  timerId?: NodeJS.Timeout;
 };
 export type Room = {
   players: Map<string, Players>;
   started: boolean;
+  gameEnded?: boolean;
   settings: Settings;
-  sockets: Map<string, WebSocket>;
+  round: Round;
 };
 export const room = new Map<string, Room>();
 const prefixes = [
-  "Shadow",
-  "Storm",
-  "Blaze",
-  "Frost",
-  "Thunder",
-  "Crimson",
-  "Void",
-  "Neon",
-  "Lunar",
-  "Solar",
-  "Toxic",
-  "Phantom",
-  "Savage",
-  "Mystic",
-  "Hyper",
+  "Red",
+  "Blue",
+  "Ash",
+  "Misty",
+  "Brock",
+  "TeamRocket",
+  "Shiny",
+  "Mega",
+  "Gigantamax",
+  "Alpha",
+  "Elite",
+  "GymLeader",
+  "Professor",
 ];
 const middles = [
-  "Fang",
-  "Claw",
-  "Wing",
-  "Scale",
-  "Blade",
-  "Strike",
-  "Burst",
-  "Pulse",
-  "Force",
-  "Edge",
-  "Spike",
-  "Drift",
-  "Shift",
-  "Surge",
-  "Flux",
+  "Pika",
+  "Char",
+  "Squir",
+  "Bulba",
+  "Jiggly",
+  "Gengar",
+  "Mew",
+  "Eevee",
+  "Snor",
+  "Lugia",
+  "HoOh",
+  "Celebi",
+  "Ray",
+  "Lucar",
+  "Grenin",
 ];
 const suffixes = [
-  "Wolf",
-  "Drake",
-  "Hawk",
-  "Viper",
-  "Tiger",
-  "Lynx",
-  "Raven",
-  "Cobra",
-  "Hydra",
-  "Fenrir",
-  "Wyvern",
-  "Specter",
-  "Wraith",
-  "Titan",
-  "Golem",
+  "Trainer",
+  "Master",
+  "Catcher",
+  "Breeder",
+  "Ranger",
+  "Champion",
+  "Rival",
+  "Researcher",
+  "Collector",
+  "Battler",
 ];
 
 const Namepick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-const functionPick=(arr:(()=>string)[])=> {
-    const name=arr[Math.floor(Math.random() * arr.length)]
-    return name()
-}
+const functionPick = (arr: (() => string)[]) => {
+  const name = arr[Math.floor(Math.random() * arr.length)];
+  return name();
+};
 export const generateName = () => {
-  const patterns:(()=>string)[] = [
+  const patterns: (() => string)[] = [
     () => `${Namepick(prefixes)}${Namepick(suffixes)}`,
     () => `${Namepick(prefixes)}${Namepick(middles)}`,
     () => `${Namepick(middles)}${Namepick(suffixes)}`,
     () => `${Namepick(prefixes)}${Namepick(middles)}${Namepick(suffixes)}`,
   ];
-  const name=functionPick(patterns)
+  const name = functionPick(patterns);
   const num = Math.random() < 0.5 ? Math.floor(Math.random() * 999) : "";
   return `${name}${num}`;
 };
+export const serializeRoom = (myRoom: Room) =>
+  JSON.stringify({
+    room: {
+      ...myRoom,
+      players: Array.from(myRoom.players.values()).map(
+        ({ socketReference, ...rest }) => rest,
+      ),
+    },
+  });
