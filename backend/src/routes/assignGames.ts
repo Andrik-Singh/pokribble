@@ -21,6 +21,7 @@ export default function assignGame(
       round: {
         currentRound: 1,
         drawerIndex: 0,
+        correctGuesses: [],
         timeRemaining: 60 * 1000,
       },
     });

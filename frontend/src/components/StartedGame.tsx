@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
-import type { Room } from "../routes/Game";
-import DrawingBoard from "./DrawingBoard";
-import InputBoard from "./InputBoard";
 import ChoosingPokemon from "./ChoosingPokemon";
-
-type WebSocketMessage = {
-  room?: Room;
-  text?: string;
-  pokemon?: string[];
-};
-
+import Timeout from "./Timeout";
+import MainGame from "./MainGame";
+import type {
+  IncomingWebSocketMessage,
+  OutgoingWebSocketMessage,
+  Room,
+} from "../types";
 type StartedGameProps = {
   room: Room;
   currentUserId: string | null;
-  sendJsonMessage: (msg: Record<string, unknown>) => void;
-  lastJsonMessage: WebSocketMessage | null;
+  sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
+  lastJsonMessage: IncomingWebSocketMessage | null;
+};
+
+export type TimeoutPayload = {
+  pokemon: { name: string; image: string };
+  drawer: string;
 };
 
 const StartedGame = ({
@@ -23,53 +25,53 @@ const StartedGame = ({
   sendJsonMessage,
   lastJsonMessage,
 }: StartedGameProps) => {
-  const drawerName = room.players.find(
-    (p) => p.playerId === room.round.drawerId,
-  );
-  const isDrawer = currentUserId === room.round.drawerId;
-  const [timeRemaining, setTimeRemaining] = useState<number>(
-    room.round.timeRemaining / 1000,
-  );
-
+  const [screen, setScreen] = useState<IncomingWebSocketMessage>({
+    type: "Room_Update",
+    room,
+  });
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeRemaining((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    if (!lastJsonMessage) return;
+    if (lastJsonMessage.type === "Pokemon_Choose") {
+      setScreen({
+        type: "Pokemon_Choose",
+        pokemon: lastJsonMessage.pokemon,
+        text: lastJsonMessage.text,
+      });
+    }
 
-  if (lastJsonMessage?.text && !lastJsonMessage?.room) {
+    if (lastJsonMessage.type === "Timeout") {
+      setScreen({
+        type: "Timeout",
+        drawerId: lastJsonMessage.drawerId,
+        pokemon: lastJsonMessage.pokemon,
+      });
+    }
+    if (lastJsonMessage.type === "Room_Update") {
+      setScreen({
+        type: "Room_Update",
+        room: lastJsonMessage.room,
+      });
+    }
+  }, [lastJsonMessage]);
+  if (screen.type === "Pokemon_Choose") {
     return (
       <ChoosingPokemon
-        pokemon={lastJsonMessage.pokemon}
-        text={lastJsonMessage.text}
+        pokemon={screen.pokemon?.map((p) => p.name)}
+        text={screen.text}
         sendJsonMessage={sendJsonMessage}
       />
     );
-  }  
-   return (
-    <div>
-      <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-200 text-center z-10 flex justify-between">
-        <h1>{drawerName?.name} is drawing</h1>
-        {isDrawer && room.round.pokemon && (
-          <h2 className="text-indigo-600 font-bold capitalize">
-            Draw: {room.round.pokemon.name}
-          </h2>
-        )}
-        <h3>
-          {timeRemaining < 0
-            ? "Time's up"
-            : timeRemaining + " seconds remaining"}{" "}
-        </h3>
-        <h3>
-          Round {room.round.currentRound}/{room.settings.maxRounds}
-        </h3>
-      </div>
-      <div>
-        <DrawingBoard />
-        {!isDrawer && <InputBoard />}
-      </div>
-    </div>
+  }
+  if (screen.type === "Timeout") {
+    return <Timeout pokemon={screen.pokemon!} drawer={screen.drawerId!} />;
+  }
+  return (
+    <MainGame
+      room={room}
+      currentUserId={currentUserId}
+      sendJsonMessage={sendJsonMessage}
+      lastJsonMessage={lastJsonMessage}
+    />
   );
 };
 

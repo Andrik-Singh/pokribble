@@ -1,42 +1,28 @@
 import { Room } from "./utils.js";
 
-export function broadcastToAll(myRoom: Room, payload: string) {
-  myRoom.players.forEach((p) => {
-    p.socketReference?.send(payload);
-  });
-}
-export function broadcastToId({
-  myRoom,
-  userId,
-  payload,
-}: {
-  myRoom: Room;
-  userId: string;
-  payload: string;
-}) {
-  myRoom.players.get(userId)?.socketReference?.send(payload);
-}
-
 export function broadcastRoomState(myRoom: Room) {
+  const players = Array.from(myRoom.players.values()).map(
+    ({ socketReference, ...rest }) => rest,
+  );
+
   myRoom.players.forEach((p) => {
     if (!p.socketReference) return;
 
-    // Hide pokemon from non-drawers if a pokemon is currently active
     const shouldHidePokemon =
       myRoom.started &&
       myRoom.round.pokemon &&
-      p.playerId !== myRoom.round.drawerId;
+      p.playerId !== myRoom.round.drawerId &&
+      !myRoom.round.correctGuesses?.includes(p.playerId);
 
     const { timerId, ...restRound } = myRoom.round;
+
     const roundData = shouldHidePokemon
       ? { ...restRound, pokemon: null }
       : restRound;
 
     const roomPayload = {
       ...myRoom,
-      players: Array.from(myRoom.players.values()).map(
-        ({ socketReference, ...rest }) => rest,
-      ),
+      players,
       round: roundData,
     };
 

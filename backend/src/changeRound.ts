@@ -1,8 +1,4 @@
 import { choosingPokemon } from "./choosingPokemon.js";
-import {
-  getRandomPokemon,
-  sendPokemonDescription,
-} from "./sendPokemonDescription.js";
 import { Room } from "./utils.js";
 
 export async function changeRound(myRoom: Room, drawerIndex: number) {
@@ -12,7 +8,7 @@ export async function changeRound(myRoom: Room, drawerIndex: number) {
     clearInterval(myRoom.round.timerId);
   }
 
-  myRoom.round.pokemon = undefined; // Clear previous pokemon
+  myRoom.round.pokemon = undefined;
   const playerIds = Array.from(myRoom.players.keys());
   myRoom.round.drawerId = playerIds[drawerIndex];
 

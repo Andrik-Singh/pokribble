@@ -1,4 +1,4 @@
-import type { Room } from "../routes/Game";
+import type { OutgoingWebSocketMessage, Room } from "../types";
 
 type GenerationIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type GenerationListType = {
@@ -19,7 +19,7 @@ const generationsList: GenerationListType = [
 
 type LobbyGameProps = {
   room: Room;
-  sendJsonMessage: (msg: Record<string, unknown>) => void;
+  sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
 };
 
 const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
@@ -35,7 +35,6 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
     sendJsonMessage({ type: "Toggle_Generation", generation: index });
   };
   const updateSettings = (settings: Partial<Room["settings"]>) => {
-    console.log(settings);
     sendJsonMessage({ type: "Update_Settings", settings });
   };
   return (

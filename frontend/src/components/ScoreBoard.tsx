@@ -1,8 +1,8 @@
-import type { Room } from "../routes/Game";
+import type { OutgoingWebSocketMessage, Room } from "../types";
 
 type ScoreBoardProps = {
   room: Room;
-  sendJsonMessage: (msg: Record<string, unknown>) => void;
+  sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
 };
 
 const ScoreBoard = ({ room, sendJsonMessage }: ScoreBoardProps) => {
@@ -19,10 +19,7 @@ const ScoreBoard = ({ room, sendJsonMessage }: ScoreBoardProps) => {
       <h1 className="text-5xl font-extrabold mb-12 text-transparent bg-clip-text bg-linear-to-r from-yellow-400 to-orange-500 drop-shadow-sm">
         Final Scores
       </h1>
-
-      {/* Podium */}
       <div className="flex items-end justify-center mb-16 gap-4 h-64">
-        {/* Second Place */}
         {top3[1] && (
           <div className="flex flex-col items-center animate-fade-in-up delay-100">
             <div className="text-xl font-bold text-slate-300 mb-2 truncate max-w-24">
@@ -36,8 +33,6 @@ const ScoreBoard = ({ room, sendJsonMessage }: ScoreBoardProps) => {
             </div>
           </div>
         )}
-
-        {/* First Place */}
         {top3[0] && (
           <div className="flex flex-col items-center animate-fade-in-up z-10">
             <div className="text-2xl font-black text-yellow-400 mb-2 drop-shadow-md truncate max-w-32">

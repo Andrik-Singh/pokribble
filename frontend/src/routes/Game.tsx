@@ -4,51 +4,15 @@ import useWebSocket from "react-use-websocket";
 import StartedGame from "../components/StartedGame";
 import LobbyGame from "../components/LobbyGame";
 import ScoreBoard from "../components/ScoreBoard";
+import type { IncomingWebSocketMessage, Room, RoomResponse } from "../types";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
-type PokemonDescription = {
-  name: string;
-  image: string;
-};
-type Round = {
-  pokemon?: PokemonDescription;
-  drawerId?: string;
-  currentRound: number;
-};
-type Settings = {
-  maxPlayers: number;
-  generation: (1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)[];
-  maxTime: number;
-  maxRounds: number;
-};
-type Player = {
-  playerId: string;
-  score: number;
-  name: string;
-};
-export type Room = {
-  players: Player[];
-  settings: Settings;
-  started: boolean;
-  gameEnded?: boolean;
-  round: Round;
-};
-type RoomResponse = {
-  text: string;
-  userId: string;
-  room: Room;
-  userName: string;
-};
-type WebSocketMessage = {
-  room?: Room;
-  text?: string;
-  pokemon?: string[];
-};
 
 const Game = () => {
   const [initialRoomContent, setInitialRoomContent] = useState<Room | null>(
     null,
   );
+  const [roomContent, setRoomContent] = useState<Room | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -108,32 +72,30 @@ const Game = () => {
       fetchData();
     }
   }, [gameId]);
-  const { sendJsonMessage, lastJsonMessage } = useWebSocket<WebSocketMessage>(
-    wsUrl,
-    {
+  const { sendJsonMessage, lastJsonMessage } =
+    useWebSocket<IncomingWebSocketMessage>(wsUrl, {
       reconnectAttempts: 10,
       reconnectInterval: 1000,
-      onOpen: () => {
-        sendJsonMessage({
-          type: "Join_Room",
-        });
-      },
-      onClose: () => {
-        sendJsonMessage({
-          type: "Leave_Room",
-        });
-      },
-    },
-  );
+    });
+  useEffect(() => {
+    if (initialRoomContent) {
+      setRoomContent(initialRoomContent);
+    }
+  }, [initialRoomContent]);
+  useEffect(() => {
+    if (!lastJsonMessage) return;
+    if (lastJsonMessage.type === "Room_Update") {
+      setRoomContent(lastJsonMessage.room);
+    }
+  }, [lastJsonMessage]);
   if (loading) return <div>Loading</div>;
   if (error) return <div>{error}</div>;
-  const roomContent = lastJsonMessage?.room ?? initialRoomContent;
   if (!roomContent) return <div>Initializing</div>;
   return (
     <div>
       {roomContent.gameEnded ? (
         <ScoreBoard room={roomContent} sendJsonMessage={sendJsonMessage} />
-      ) : roomContent.started || lastJsonMessage?.text ? (
+      ) : roomContent.started ? (
         <StartedGame
           room={roomContent}
           currentUserId={currentUserId}

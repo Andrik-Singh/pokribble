@@ -1,7 +1,10 @@
+import { useEffect } from "react";
+import type { OutgoingWebSocketMessage } from "../types";
+
 type ChoosingPokemonProps = {
   pokemon?: string[];
   text?: string;
-  sendJsonMessage: (msg: Record<string, unknown>) => void;
+  sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
 };
 
 const ChoosingPokemon = ({
@@ -10,7 +13,21 @@ const ChoosingPokemon = ({
   sendJsonMessage,
 }: ChoosingPokemonProps) => {
   const isDrawer = pokemon && pokemon.length > 0;
-
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      sendJsonMessage({
+        type: "Pokemon_Chosen",
+        pokemon: {
+          name: pokemon?.[0] ?? "Charmander",
+          image: "",
+        },
+      });
+      return () => {
+        clearTimeout(timeout);
+      };
+    }, 10000);
+    return () => clearTimeout(timeout);
+  }, []);
   if (isDrawer) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
