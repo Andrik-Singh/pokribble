@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { OutgoingWebSocketMessage } from "../types";
 
 type ChoosingPokemonProps = {
-  pokemon?: string[];
+  pokemon?: { name: string; image: string }[];
   text?: string;
   sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
 };
@@ -18,7 +18,7 @@ const ChoosingPokemon = ({
       sendJsonMessage({
         type: "Pokemon_Chosen",
         pokemon: {
-          name: pokemon?.[0] ?? "Charmander",
+          name: pokemon?.[0]?.name ?? "Charmander",
           image: "",
         },
       });
@@ -35,19 +35,26 @@ const ChoosingPokemon = ({
           <p className="text-gray-500 mb-6">
             Pick one of the three options below
           </p>
-          <div className="flex gap-4 flex-wrap justify-center">
-            {pokemon.map((name, index) => (
+          <div className="flex gap-6 flex-wrap justify-center">
+            {pokemon.map((p, index) => (
               <button
                 key={index}
                 onClick={() =>
                   sendJsonMessage({
                     type: "Pokemon_Chosen",
-                    pokemon: { name, image: "" },
+                    pokemon: p,
                   })
                 }
-                className="bg-linear-to-br from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 capitalize cursor-pointer"
+                className="bg-linear-to-br from-indigo-500 to-purple-600 text-white px-6 py-5 rounded-2xl font-bold text-lg shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 capitalize cursor-pointer flex flex-col items-center gap-3 min-w-[140px]"
               >
-                {name}
+                {p.image && (
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="w-24 h-24 object-contain drop-shadow-md"
+                  />
+                )}
+                <span>{p.name}</span>
               </button>
             ))}
           </div>

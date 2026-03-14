@@ -56,7 +56,7 @@ const StartedGame = ({
   if (screen.type === "Pokemon_Choose") {
     return (
       <ChoosingPokemon
-        pokemon={screen.pokemon?.map((p) => p.name)}
+        pokemon={screen.pokemon}
         text={screen.text}
         sendJsonMessage={sendJsonMessage}
       />

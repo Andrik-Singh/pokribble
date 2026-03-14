@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { generateName, room, serializeRoom } from "../utils.js";
 import { broadcastRoomState } from "../broadcast.js";
-import { webSocketFunction } from "../webSocketFunction.js";
+import { webSocketFunction } from "../websokcetFunctions/webSocketFunction.js";
 import { sendDrawing } from "../DrawingBoard.js";
 //checks if a room is there or not and checks if the game has started or not and if the user is already in the room or not
 export default async function loadGames(fastify: FastifyInstance) {

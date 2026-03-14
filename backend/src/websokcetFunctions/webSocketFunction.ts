@@ -1,6 +1,6 @@
-import { broadcastRoomState } from "./broadcast.js";
-import { choosingPokemon } from "./choosingPokemon.js";
-import { levenshtein, Room } from "./utils.js";
+import { broadcastRoomState } from "../broadcast.js";
+import { choosingPokemon } from "../choosingPokemon.js";
+import { levenshtein, Room } from "../utils.js";
 
 const toggleGeneration = (
   myRoom: Room,
@@ -158,8 +158,11 @@ const guessPokemon = (
   if (!roundPokemon || !guessPokemon) return;
   const player = myRoom.players.get(userId);
   if (roundPokemon === guessPokemon) {
+    if (myRoom.round.correctGuesses.includes(userId)) return;
+    const timeRemaining = myRoom.round.timeRemaining;
+    const points = Math.floor((timeRemaining / myRoom.settings.maxTime) * 100);
     if (player) {
-      player.score += 1;
+      player.score += points;
       myRoom.round.correctGuesses.push(userId);
       player.socketReference?.send(
         JSON.stringify({
