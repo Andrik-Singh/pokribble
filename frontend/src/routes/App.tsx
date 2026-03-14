@@ -22,6 +22,7 @@ const App = () => {
             });
             if (!res.ok) {
               console.error("Server error");
+              setLoading(false);
               return;
             }
             const data: {
@@ -34,6 +35,8 @@ const App = () => {
             setLoading(false);
           } catch (error) {
             console.error(error);
+          } finally {
+            setLoading(false);
           }
         }}
       >

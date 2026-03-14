@@ -19,6 +19,7 @@ const InputBoard = ({
         onChange={(e) => {
           setInput(e.target.value);
         }}
+        value={input}
         type="text"
         aria-label="Enter your message"
         placeholder="Guess pokemon..."
@@ -27,6 +28,7 @@ const InputBoard = ({
       <button
         onClick={() => {
           sendJsonMessage({ type: "Guess", guess: input, userId });
+          setInput("");
         }}
         className="border border-gray-300 rounded-md p-2"
       >

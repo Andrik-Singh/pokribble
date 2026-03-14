@@ -100,7 +100,15 @@ const pokemonChoose = async (
 const timeout = async (myRoom: Room) => {
   const players = Array.from(myRoom.players.values());
   const previousDrawerIndex = myRoom.round.drawerIndex;
+  let iterations = 0;
   do {
+    iterations++;
+    if (iterations > players.length) {
+      // All players disconnected - end the game
+      myRoom.started = false;
+      broadcastRoomState(myRoom);
+      return;
+    }
     myRoom.round.drawerIndex = (myRoom.round.drawerIndex + 1) % players.length;
   } while (players[myRoom.round.drawerIndex].disconnected);
   if (myRoom.round.drawerIndex <= previousDrawerIndex) {
@@ -144,6 +152,7 @@ const guessPokemon = (
   message: { guess: string },
   userId: string,
 ) => {
+  if (userId === myRoom.round.drawerId) return;
   const roundPokemon = myRoom.round.pokemon?.name.toLowerCase();
   const guessPokemon = message.guess.toLowerCase();
   if (!roundPokemon || !guessPokemon) return;
@@ -151,7 +160,7 @@ const guessPokemon = (
   if (roundPokemon === guessPokemon) {
     if (player) {
       player.score += 1;
-      myRoom.round.correctGuesses?.push(userId);
+      myRoom.round.correctGuesses.push(userId);
       player.socketReference?.send(
         JSON.stringify({
           type: "Guess_Result",

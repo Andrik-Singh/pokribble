@@ -66,7 +66,6 @@ const DrawingBoard = ({
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const isMobile = vw < 640;
-      const isTablet = vw < 1024;
 
       // toolbar height approx: 80px mobile, 72px desktop
       const toolbarH = isMobile ? 160 : 80;
@@ -369,6 +368,15 @@ const DrawingBoard = ({
                         toolbar.current.color = c;
                         toolbar.current.tool = "pen";
                       }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          toolbar.current.color = c;
+                          toolbar.current.tool = "pen";
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Select color ${c}`}
                       style={{ background: c }}
                       className="w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-full border-2 border-white/25 cursor-pointer transition-transform hover:scale-125 shrink-0"
                     />

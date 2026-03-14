@@ -4,11 +4,11 @@ const SideBar = ({ room }: { room: Room }) => {
   const sorted = [...room.players].sort((a, b) => b.score - a.score);
 
   return (
-    <aside className="w-100% h-auto bg-[#0f0f13] border-r border-white/5 flex flex-col gap-5 p-5 font-mono">
+    <aside className="w-full h-auto bg-[#0f0f13] border-r border-white/5 flex flex-col gap-5 p-5 font-mono">
+      {" "}
       <h1 className="text-[11px] font-medium tracking-widest uppercase text-white/25 pb-3 border-b border-white/5">
         Scores
       </h1>
-
       <ul className="flex xl:flex-col flex-row xl:gap-1 gap-5">
         {sorted.map((player, index) => (
           <li

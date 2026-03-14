@@ -59,12 +59,22 @@ function isBaseForm(name: string): boolean {
 }
 
 export async function getRandomPokemon(generation?: number) {
+  if (generation !== undefined && !GEN_RANGES[generation]) {
+    console.error("The genratoin is either undefined or not in range");
+    return;
+  }
   const [min, max] = generation ? GEN_RANGES[generation] : [1, 1025];
 
   for (let attempt = 0; attempt < 20; attempt++) {
     const id = Math.floor(Math.random() * (max - min + 1)) + min;
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-    const data = await res.json();
+    let data;
+    try {
+      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+      data = await res.json();
+    } catch (error) {
+      console.error(error);
+      continue;
+    }
 
     if (!isBaseForm(data.name)) continue;
     return {

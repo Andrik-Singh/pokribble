@@ -5,6 +5,9 @@ export async function choosingPokemon(myRoom: Room, drawerIndex: number) {
   const players = Array.from(myRoom.players.keys());
   myRoom.round.drawerId = players[drawerIndex];
   const generation = myRoom.settings.generation;
+  if (!generation || generation.length === 0) {
+    throw new Error("Generation settings are required but not configured");
+  }
   const drawingPlayers = Array.from(myRoom.players.values()).filter(
     (player) => player.playerId === myRoom.round.drawerId,
   );

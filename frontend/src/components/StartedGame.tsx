@@ -63,7 +63,7 @@ const StartedGame = ({
     );
   }
   if (screen.type === "Timeout") {
-    return <Timeout pokemon={screen.pokemon!} drawer={screen.drawerId!} />;
+    return <Timeout pokemon={screen.pokemon} drawer={screen.drawerId} />;
   }
   return (
     <MainGame

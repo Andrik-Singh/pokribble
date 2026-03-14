@@ -23,22 +23,19 @@ const MainGame = ({
   const currentGuessered = room.round.correctGuesses?.includes(
     currentUserId ?? "",
   );
-  console.log(room.round.correctGuesses);
   const [timeRemaining, setTimeRemaining] = useState<number>(
     room.round.timeRemaining / 1000,
   );
 
+  // Sync with server time when it changes
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (timeRemaining < 0) return;
-      setTimeRemaining((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    setTimeRemaining(room.round.timeRemaining / 1000);
+  }, [room.round.timeRemaining]);
+
   return (
     <div>
       <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-200 text-center z-10 flex justify-between">
-        <h1>{drawerName?.name} is drawing</h1>
+        <h1>{drawerName?.name ?? "Someone"} is drawing</h1>{" "}
         {(isDrawer || currentGuessered) && room.round.pokemon && (
           <h2 className="text-indigo-600 font-bold capitalize">
             Draw: {room.round.pokemon.name}
@@ -53,7 +50,8 @@ const MainGame = ({
           Round {room.round.currentRound}/{room.settings.maxRounds}
         </h3>
       </div>
-      <div className="flex w-100%  xl:flex-row flex-col">
+      <div className="flex w-full xl:flex-row flex-col">
+        {" "}
         <SideBar room={room} />
         {isDrawer ? (
           <DrawingBoard sendJsonMessage={sendJsonMessage} />

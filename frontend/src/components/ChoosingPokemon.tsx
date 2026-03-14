@@ -22,9 +22,6 @@ const ChoosingPokemon = ({
           image: "",
         },
       });
-      return () => {
-        clearTimeout(timeout);
-      };
     }, 10000);
     return () => clearTimeout(timeout);
   }, []);
