@@ -53,9 +53,10 @@ export default async function loadGames(fastify: FastifyInstance) {
 
   fastify.get("/api/ws/:roomId", { websocket: true }, (connection, req) => {
     const { roomId } = req.params as { roomId: string };
-    const { userId, userName } = req.query as {
+    const { userId, userName, avatar } = req.query as {
       userId: string;
       userName: string;
+      avatar: string;
     };
 
     const myRoom = room.get(roomId);
@@ -82,6 +83,7 @@ export default async function loadGames(fastify: FastifyInstance) {
         name: userName,
         socketReference: connection,
         disconnected: false,
+        avatar: avatar,
       });
     }
     broadcastRoomState(myRoom);

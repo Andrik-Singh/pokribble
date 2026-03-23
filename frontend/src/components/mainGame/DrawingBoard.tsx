@@ -32,7 +32,9 @@ const DrawingBoard = ({
   const strokeHistory = useRef<Stroke[]>([]);
   const redoStack = useRef<Stroke[]>([]);
   const currentStroke = useRef<Stroke | null>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 900, height: 520 });
+  const LOGICAL_W = 900;
+  const LOGICAL_H = 520;
+  const [displaySize, setDisplaySize] = useState({ width: 900, height: 520 });
   const scaleRef = useRef(1);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
   const redraw = useCallback(() => {
@@ -40,7 +42,7 @@ const DrawingBoard = ({
     const ctx = canvas?.getContext("2d");
     if (!ctx || !canvas) return;
     ctx.fillStyle = "#f5f0e8";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
     for (const stroke of strokeHistory.current) {
       ctx.globalCompositeOperation =
         stroke.tool === "eraser" ? "destination-out" : "source-over";
@@ -60,41 +62,10 @@ const DrawingBoard = ({
     ctx.beginPath();
   }, []);
 
-  // Resize canvas to fit container
-  useEffect(() => {
-    const updateSize = () => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const isMobile = vw < 640;
-
-      // toolbar height approx: 80px mobile, 72px desktop
-      const toolbarH = isMobile ? 160 : 80;
-      const hintH = 28;
-      const padding = isMobile ? 32 : 48;
-
-      const maxW = Math.min(vw - (isMobile ? 16 : 48), 900);
-      const maxH = vh - toolbarH - hintH - padding;
-
-      const aspect = 900 / 520;
-      let w = maxW;
-      let h = w / aspect;
-      if (h > maxH) {
-        h = maxH;
-        w = h * aspect;
-      }
-
-      scaleRef.current = w / 900;
-      setCanvasSize({ width: Math.floor(w), height: Math.floor(h) });
-    };
-
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
-
+  // Redraw when display size changes (content is preserved because logical canvas size never changes)
   useEffect(() => {
     redraw();
-  }, [canvasSize, redraw]);
+  }, [displaySize, redraw]);
 
   const undo = useCallback(() => {
     if (strokeHistory.current.length === 0) return;
@@ -137,7 +108,7 @@ const DrawingBoard = ({
     if (!ctx || !canvas) return;
 
     ctx.fillStyle = "#f5f0e8";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
 
     const getPos = (e: MouseEvent | Touch, rect: DOMRect): [number, number] => {
       const clientX = e.clientX;
@@ -258,7 +229,7 @@ const DrawingBoard = ({
       window.removeEventListener("keydown", handleKeyDown);
       throttledFlush.current.cancel();
     };
-  }, [undo, redo, sendJsonMessage, canvasSize]);
+  }, [undo, redo, sendJsonMessage]);
 
   const btnCls =
     "w-9 h-9 sm:w-10 sm:h-10 rounded-lg border border-white/20 bg-white/8 text-white cursor-pointer text-base flex items-center justify-center hover:bg-white/15 transition-colors";
@@ -270,10 +241,10 @@ const DrawingBoard = ({
       const hintH = 28;
       const padding = 32;
 
-      const maxW = Math.min(vw - 16, 900);
+      const maxW = Math.min(vw - 16, LOGICAL_W);
       const maxH = window.innerHeight - toolbarH - hintH - padding;
 
-      const aspect = 900 / 520;
+      const aspect = LOGICAL_W / LOGICAL_H;
       let w = maxW;
       let h = w / aspect;
       if (h > maxH) {
@@ -281,8 +252,8 @@ const DrawingBoard = ({
         w = h * aspect;
       }
 
-      scaleRef.current = w / 900;
-      setCanvasSize({ width: Math.floor(w), height: Math.floor(h) });
+      scaleRef.current = w / LOGICAL_W;
+      setDisplaySize({ width: Math.floor(w), height: Math.floor(h) });
     };
 
     // Wait for toolbar to render before measuring
@@ -297,11 +268,11 @@ const DrawingBoard = ({
     };
   }, []);
   return (
-    <div className="bg-[#1a1a2e] min-h-screen w-full flex flex-col items-center justify-center gap-3 sm:gap-4 p-2 sm:p-6 font-[Nunito,sans-serif] overflow-hidden">
+    <div className="bg-white min-h-screen w-full flex flex-col items-center justify-center gap-3 sm:gap-4 p-2 sm:p-6 font-[Nunito,sans-serif] overflow-hidden">
       {/* Toolbar */}
       <div
         ref={toolbarRef}
-        className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 bg-white/5 border border-white/10 rounded-2xl px-3 py-2.5 sm:px-4 sm:py-2.5 backdrop-blur-md w-full max-w-3xl"
+        className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 bg-black border border-white/10 rounded-2xl px-3 py-2.5 sm:px-4 sm:py-2.5 backdrop-blur-md w-full max-w-3xl"
       >
         {/* Tools */}
         {(["pen", "eraser"] as const).map((t) => (
@@ -399,10 +370,12 @@ const DrawingBoard = ({
       >
         <canvas
           ref={canvasRef}
-          width={canvasSize.width}
-          height={canvasSize.height}
+          width={LOGICAL_W}
+          height={LOGICAL_H}
           style={{
             display: "block",
+            width: displaySize.width,
+            height: displaySize.height,
             background: "#f5f0e8",
             cursor: "crosshair",
             touchAction: "none",
@@ -410,7 +383,7 @@ const DrawingBoard = ({
         />
       </div>
 
-      <p className="text-white/20 text-[10px] tracking-widest hidden sm:block">
+      <p className="text-black/20 text-[10px] tracking-widest hidden sm:block">
         CTRL+Z · CTRL+SHIFT+Z to undo / redo
       </p>
     </div>

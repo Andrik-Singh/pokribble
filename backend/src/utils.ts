@@ -6,6 +6,7 @@ type Players = {
   socketReference?: WebSocket;
   name: string;
   disconnected: boolean;
+  avatar: string;
 };
 type Settings = {
   maxPlayers: number;
@@ -16,6 +17,7 @@ type Settings = {
 type PokemonDescription = {
   name: string;
   image: string;
+  id: number;
 };
 type Round = {
   pokemon?: PokemonDescription;

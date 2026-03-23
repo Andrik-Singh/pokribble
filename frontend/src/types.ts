@@ -1,6 +1,7 @@
-type PokemonDescription = {
+export type PokemonDescription = {
   name: string;
   image: string;
+  id: number;
 };
 type Round = {
   pokemon?: PokemonDescription;
@@ -20,6 +21,7 @@ type Player = {
   score: number;
   name: string;
   disconnected?: boolean;
+  avatar: string;
 };
 export type Room = {
   players: Player[];
@@ -51,8 +53,17 @@ export type IncomingWebSocketMessage =
       type: "Pokemon_Choose";
       text: string;
       pokemon?: PokemonDescription[];
-    };
-
+    }
+  | {
+      type: "Guess_Result";
+      correct: boolean;
+      distance?: number;
+    }
+  | {
+      type: "Hint";
+      hint: string;
+    }
+  | [number, number, number, string, number, "pen" | "eraser"];
 export type OutgoingWebSocketMessage =
   | { type: "Toggle_Generation"; generation: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 }
   | {
@@ -65,5 +76,8 @@ export type OutgoingWebSocketMessage =
       }>;
     }
   | { type: "Game_Start" }
-  | { type: "Pokemon_Chosen"; pokemon: { name: string; image: string } }
+  | {
+      type: "Pokemon_Chosen";
+      pokemon: { name: string; image: string; id: number };
+    }
   | { type: "Return_To_Lobby" };

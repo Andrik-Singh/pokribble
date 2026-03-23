@@ -8,27 +8,21 @@ const broadcastToNonDrawers = (msg: (number | string)[], myRoom: Room) => {
 };
 
 const drawingFunctions = [
-  // 0 = mousedown
   (msg: (number | string)[], myRoom: Room) => {
     broadcastToNonDrawers(msg, myRoom);
   },
-  // 1 = move batch
   (msg: (number | string)[], myRoom: Room) => {
     broadcastToNonDrawers(msg, myRoom);
   },
-  // 2 = mouseup
   (msg: (number | string)[], myRoom: Room) => {
     broadcastToNonDrawers(msg, myRoom);
   },
-  // 3 = undo
   (msg: (number | string)[], myRoom: Room) => {
     broadcastToNonDrawers(msg, myRoom);
   },
-  // 4 = redo
   (msg: (number | string)[], myRoom: Room) => {
     broadcastToNonDrawers(msg, myRoom);
   },
-  // 5 = clear
   (msg: (number | string)[], myRoom: Room) => {
     broadcastToNonDrawers(msg, myRoom);
   },

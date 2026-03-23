@@ -1,9 +1,10 @@
-import { getRandomPokemon } from "./sendPokemonDescription.js";
+import { getRandomPokemon } from "./pokemon/sendPokemonDescription.js";
 import { Room } from "./utils.js";
 
 export async function choosingPokemon(myRoom: Room, drawerIndex: number) {
   const players = Array.from(myRoom.players.keys());
   myRoom.round.drawerId = players[drawerIndex];
+  myRoom.round.correctGuesses = [];
   const generation = myRoom.settings.generation;
   if (!generation || generation.length === 0) {
     throw new Error("Generation settings are required but not configured");

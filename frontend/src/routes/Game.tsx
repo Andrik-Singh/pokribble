@@ -5,14 +5,19 @@ import StartedGame from "../components/StartedGame";
 import LobbyGame from "../components/LobbyGame";
 import ScoreBoard from "../components/ScoreBoard";
 import type { IncomingWebSocketMessage, Room, RoomResponse } from "../types";
+import { useSocketFunction } from "../zustand/sockets";
+import { useAvatarChange } from "../zustand/avatar";
+import { random151Pokemon, STORAGE_KEY } from "../utils/randomNumbers";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Game = () => {
-  const [initialRoomContent, setInitialRoomContent] = useState<Room | null>(
-    null,
-  );
-  const [roomContent, setRoomContent] = useState<Room | null>(null);
+  const { roomContent, setRoomContent, setLastJsonMessage } =
+    useSocketFunction();
+  const setAvatar = useAvatarChange((s) => s.setAvatar);
+  const avatar = useAvatarChange((s) => s.avatar);
+  console.log(window.localStorage.getItem(STORAGE_KEY));
+  console.log(avatar);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -22,6 +27,7 @@ const Game = () => {
     ? `${backendUrl}/ws/${gameId}?${new URLSearchParams({
         userId: currentUserId,
         userName: currentUserName ?? "",
+        avatar: avatar ?? random151Pokemon(),
       }).toString()}`
     : null;
   useEffect(() => {
@@ -59,7 +65,7 @@ const Game = () => {
           setLoading(false);
           return;
         }
-        setInitialRoomContent(data.room);
+        setRoomContent(data.room);
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -78,26 +84,34 @@ const Game = () => {
       reconnectInterval: 1000,
     });
   useEffect(() => {
-    if (initialRoomContent) {
-      setRoomContent(initialRoomContent);
-    }
-  }, [initialRoomContent]);
-  useEffect(() => {
     if (!lastJsonMessage) return;
+    if (Array.isArray(lastJsonMessage)) {
+      setLastJsonMessage(lastJsonMessage);
+      return;
+    }
     if (lastJsonMessage.type === "Room_Update") {
       setRoomContent(lastJsonMessage.room);
     }
+    setLastJsonMessage(lastJsonMessage);
   }, [lastJsonMessage]);
+  useEffect(() => {
+    if (!window.localStorage.getItem(STORAGE_KEY)) {
+      const randomAvatar = random151Pokemon();
+      setAvatar(randomAvatar);
+      window.localStorage.setItem(STORAGE_KEY, randomAvatar);
+      return;
+    }
+    setAvatar(window.localStorage.getItem(STORAGE_KEY) ?? "");
+  }, []);
   if (loading) return <div>Loading</div>;
   if (error) return <div>{error}</div>;
   if (!roomContent) return <div>Initializing</div>;
   return (
     <div>
       {roomContent.gameEnded ? (
-        <ScoreBoard room={roomContent} sendJsonMessage={sendJsonMessage} />
+        <ScoreBoard sendJsonMessage={sendJsonMessage} />
       ) : roomContent.started ? (
         <StartedGame
-          room={roomContent}
           currentUserId={currentUserId}
           sendJsonMessage={sendJsonMessage}
           lastJsonMessage={lastJsonMessage}

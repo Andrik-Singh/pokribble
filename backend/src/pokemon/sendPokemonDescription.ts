@@ -82,6 +82,7 @@ export async function getRandomPokemon(generation?: number) {
       image:
         data.sprites.other["official-artwork"]?.front_default ??
         data.sprites.front_default,
+      id: data.id,
     };
   }
 

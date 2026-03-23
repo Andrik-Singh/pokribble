@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from "react";
+import { useSocketFunction } from "../../zustand/sockets";
 
 type Stroke = {
   tool: "pen" | "eraser";
@@ -7,14 +8,14 @@ type Stroke = {
   points: number[];
 };
 
-const ClientDrawingBoard = ({ lastJsonMessage }: { lastJsonMessage: any }) => {
+const ClientDrawingBoard = () => {
+  const lastJsonMessage = useSocketFunction((s) => s.webSocketMessage);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const strokeHistory = useRef<Stroke[]>([]);
   const redoStack = useRef<Stroke[]>([]);
   const currentStroke = useRef<Stroke | null>(null);
   const scaleRef = useRef(1);
   const [canvasSize, setCanvasSize] = useState({ width: 900, height: 520 });
-
   const getCtx = () => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -83,15 +84,19 @@ const ClientDrawingBoard = ({ lastJsonMessage }: { lastJsonMessage: any }) => {
   }, []);
 
   useEffect(() => {
-    if (!Array.isArray(lastJsonMessage)) return;
+    if (!Array.isArray(lastJsonMessage)) {
+      if (lastJsonMessage?.type === "Hint") {
+      }
+      return;
+    }
     const ctx = getCtx();
     if (!ctx) return;
-
+    console.log(lastJsonMessage);
     const s = scaleRef.current;
     const [opcode] = lastJsonMessage;
 
     if (opcode === 0) {
-      const [, x, y, color, size, tool] = lastJsonMessage as [
+      const [, x, y, color, size, tool] = lastJsonMessage as unknown as [
         number,
         number,
         number,
@@ -110,7 +115,7 @@ const ClientDrawingBoard = ({ lastJsonMessage }: { lastJsonMessage: any }) => {
       ctx.beginPath();
       ctx.moveTo(x * s, y * s);
     } else if (opcode === 1) {
-      const [, points, color, size, tool] = lastJsonMessage as [
+      const [, points, color, size, tool] = lastJsonMessage as unknown as [
         number,
         number[],
         string,
@@ -153,7 +158,7 @@ const ClientDrawingBoard = ({ lastJsonMessage }: { lastJsonMessage: any }) => {
   }, [lastJsonMessage, redraw]);
 
   return (
-    <div className="bg-[#1a1a2e] min-h-screen w-full flex items-center justify-center p-4">
+    <div className="bg-white min-h-screen w-full flex items-center justify-center p-4">
       <div
         className="rounded-md overflow-hidden"
         style={{

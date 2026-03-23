@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DrawingBoard from "./DrawingBoard";
-import InputBoard from "./InputBoard";
-import type { Room } from "../types";
+import { useSocketFunction, type TSocketFunction } from "../../zustand/sockets";
 import ClientDrawingBoard from "./ClientDrawingBoard";
 import SideBar from "./SideBar";
+import InputBoard from "./InputBoard";
 
 const MainGame = ({
-  room,
   currentUserId,
   sendJsonMessage,
-  lastJsonMessage,
 }: {
-  room: Room;
   currentUserId: string | null;
   sendJsonMessage: (msg: any) => void;
-  lastJsonMessage: any;
 }) => {
+  const room = useSocketFunction((s: TSocketFunction) => s.roomContent);
+  const lastJsonMessage = useSocketFunction(
+    (s: TSocketFunction) => s.webSocketMessage,
+  );
+  if (!room) {
+    return <div>Initializing</div>;
+  }
   const drawerName = room.players.find(
     (p) => p.playerId === room.round.drawerId,
   );
@@ -26,8 +29,6 @@ const MainGame = ({
   const [timeRemaining, setTimeRemaining] = useState<number>(
     room.round.timeRemaining / 1000,
   );
-
-  // Sync with server time when it changes
   useEffect(() => {
     setTimeRemaining(room.round.timeRemaining / 1000);
   }, [room.round.timeRemaining]);
@@ -50,13 +51,12 @@ const MainGame = ({
           Round {room.round.currentRound}/{room.settings.maxRounds}
         </h3>
       </div>
-      <div className="flex w-full xl:flex-row flex-col">
-        {" "}
+      <div className="flex w-full flex-col">
         <SideBar room={room} />
         {isDrawer ? (
           <DrawingBoard sendJsonMessage={sendJsonMessage} />
         ) : (
-          <ClientDrawingBoard lastJsonMessage={lastJsonMessage} />
+          <ClientDrawingBoard />
         )}
       </div>
       {!isDrawer && !currentGuessered && (

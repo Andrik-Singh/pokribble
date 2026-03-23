@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { OutgoingWebSocketMessage } from "../types";
 
 type ChoosingPokemonProps = {
-  pokemon?: { name: string; image: string }[];
+  pokemon?: { name: string; image: string; id: number }[];
   text?: string;
   sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
 };
@@ -19,7 +19,8 @@ const ChoosingPokemon = ({
         type: "Pokemon_Chosen",
         pokemon: {
           name: pokemon?.[0]?.name ?? "Charmander",
-          image: "",
+          image: pokemon?.[0]?.image ?? "",
+          id: pokemon?.[0]?.id ?? 0,
         },
       });
     }, 10000);
@@ -62,7 +63,6 @@ const ChoosingPokemon = ({
       </div>
     );
   }
-
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
       <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-200 text-center">

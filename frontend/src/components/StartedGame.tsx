@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import ChoosingPokemon from "./ChoosingPokemon";
 import Timeout from "./Timeout";
-import MainGame from "./MainGame";
 import type {
   IncomingWebSocketMessage,
   OutgoingWebSocketMessage,
+  PokemonDescription,
   Room,
 } from "../types";
+import { useSocketFunction, type TSocketFunction } from "../zustand/sockets";
+import MainGame from "./mainGame/MainGame";
 type StartedGameProps = {
-  room: Room;
   currentUserId: string | null;
   sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
   lastJsonMessage: IncomingWebSocketMessage | null;
@@ -18,19 +19,48 @@ export type TimeoutPayload = {
   pokemon: { name: string; image: string };
   drawer: string;
 };
-
-const StartedGame = ({
-  room,
-  currentUserId,
-  sendJsonMessage,
-  lastJsonMessage,
-}: StartedGameProps) => {
-  const [screen, setScreen] = useState<IncomingWebSocketMessage>({
+type Screen =
+  | {
+      type: "Room_Update";
+      room: Partial<Room>;
+    }
+  | {
+      type: "Timeout";
+      drawerId: string;
+      pokemon: PokemonDescription;
+    }
+  | {
+      type: "Return_To_Lobby";
+    }
+  | {
+      type: "Pokemon_Choose";
+      text: string;
+      pokemon?: PokemonDescription[];
+    }
+  | {
+      type: "Guess_Result";
+      correct: boolean;
+      distance?: number;
+    }
+  | {
+      type: "Hint";
+      hint: string;
+    };
+const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
+  const room = useSocketFunction((s: TSocketFunction) => s.roomContent);
+  const lastJsonMessage = useSocketFunction(
+    (s: TSocketFunction) => s.webSocketMessage,
+  );
+  if (!room) {
+    return <div>Initializing</div>;
+  }
+  const [screen, setScreen] = useState<Screen>({
     type: "Room_Update",
     room,
   });
   useEffect(() => {
     if (!lastJsonMessage) return;
+    if (Array.isArray(lastJsonMessage)) return;
     if (lastJsonMessage.type === "Pokemon_Choose") {
       setScreen({
         type: "Pokemon_Choose",
@@ -66,12 +96,7 @@ const StartedGame = ({
     return <Timeout pokemon={screen.pokemon} drawer={screen.drawerId} />;
   }
   return (
-    <MainGame
-      room={room}
-      currentUserId={currentUserId}
-      sendJsonMessage={sendJsonMessage}
-      lastJsonMessage={lastJsonMessage}
-    />
+    <MainGame currentUserId={currentUserId} sendJsonMessage={sendJsonMessage} />
   );
 };
 
