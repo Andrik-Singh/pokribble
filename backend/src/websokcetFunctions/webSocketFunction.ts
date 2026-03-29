@@ -1,5 +1,5 @@
 import { broadcastRoomState } from "../broadcast.js";
-import { choosingPokemon } from "../choosingPokemon.js";
+import { choosingPokemon } from "../pokemon/choosingPokemon.js";
 import { levenshtein, Room } from "../utils.js";
 import { pokemonChoose } from "./pokemonchoose.js";
 import { timeout } from "./timeout.js";

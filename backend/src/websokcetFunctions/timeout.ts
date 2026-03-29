@@ -1,5 +1,5 @@
 import { broadcastRoomState } from "../broadcast.js";
-import { choosingPokemon } from "../choosingPokemon.js";
+import { choosingPokemon } from "../pokemon/choosingPokemon.js";
 import { Room } from "../utils.js";
 
 export const timeout = async (myRoom: Room) => {
@@ -9,7 +9,6 @@ export const timeout = async (myRoom: Room) => {
   do {
     iterations++;
     if (iterations > players.length) {
-      // All players disconnected - end the game
       myRoom.started = false;
       broadcastRoomState(myRoom);
       return;

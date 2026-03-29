@@ -1,13 +1,37 @@
-export async function getPokemonHint(
-  pokemonId?: number,
-): Promise<string | null> {
+import { getData, pokemonKey } from "../redis.js";
+
+export async function getPokemonHint(pokemonId?: number): Promise<{
+  type: string[];
+  length: number;
+  totalBaseStat: number;
+} | null> {
   if (!pokemonId) return null;
   try {
-    const res = await fetch(
-      `https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`,
-    );
+    const cachedData: {
+      type: string[];
+      length: number;
+      totalBaseStat: number;
+    } | null = await getData(`${pokemonKey}${pokemonId}`);
+    if (cachedData) {
+      return {
+        type: cachedData.type,
+        length: cachedData.length,
+        totalBaseStat: cachedData.totalBaseStat,
+      };
+    }
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+    if (!res.ok) {
+      throw new Error(`PokeAPI request failed with status ${res.status}`);
+    }
     const data = await res.json();
-    return data.flavor_text_entries[0].flavor_text;
+    return {
+      type: data.types.map((t: { type: { name: string } }) => t.type.name),
+      length: data.name.length,
+      totalBaseStat: data.stats.reduce(
+        (acc: number, stat: any) => acc + stat.base_stat,
+        0,
+      ),
+    };
   } catch (err) {
     console.error(err);
     return null;

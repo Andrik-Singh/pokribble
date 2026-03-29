@@ -91,7 +91,6 @@ const ClientDrawingBoard = () => {
     }
     const ctx = getCtx();
     if (!ctx) return;
-    console.log(lastJsonMessage);
     const s = scaleRef.current;
     const [opcode] = lastJsonMessage;
 

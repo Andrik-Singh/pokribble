@@ -1,3 +1,5 @@
+import { getData, pokemonKey, redisClient, setData } from "../redis.js";
+
 const GEN_RANGES: Record<number, [number, number]> = {
   1: [1, 151],
   2: [152, 251],
@@ -9,8 +11,6 @@ const GEN_RANGES: Record<number, [number, number]> = {
   8: [810, 905],
   9: [906, 1025],
 };
-
-// Hyphenated names that ARE canonical base forms (not formes)
 const ALLOWED_HYPHENATED = new Set([
   "mr-mime",
   "mime-jr",
@@ -54,22 +54,40 @@ const ALLOWED_HYPHENATED = new Set([
 
 function isBaseForm(name: string): boolean {
   if (ALLOWED_HYPHENATED.has(name)) return true;
-  if (name.includes("-")) return false; // blocks zygarde-50, rotom-wash, etc.
+  if (name.includes("-")) return false;
   return true;
 }
 
 export async function getRandomPokemon(generation?: number) {
   if (generation !== undefined && !GEN_RANGES[generation]) {
-    console.error("The genratoin is either undefined or not in range");
+    console.error("Invalid generation: must be between 1 and 9");
     return;
   }
   const [min, max] = generation ? GEN_RANGES[generation] : [1, 1025];
 
   for (let attempt = 0; attempt < 20; attempt++) {
     const id = Math.floor(Math.random() * (max - min + 1)) + min;
+    const cachedData: {
+      name: string;
+      image: string;
+      id: number;
+      types: string[];
+      length: number;
+    } | null = await getData(`${pokemonKey}${id}`);
+    if (cachedData) {
+      return {
+        name: cachedData.name,
+        image: cachedData.image,
+        id: cachedData.id,
+      };
+    }
     let data;
     try {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+      if (!res.ok) {
+        console.error("PokeAPI request failed with status", res.status);
+        continue;
+      }
       data = await res.json();
     } catch (error) {
       console.error(error);
@@ -77,6 +95,23 @@ export async function getRandomPokemon(generation?: number) {
     }
 
     if (!isBaseForm(data.name)) continue;
+    const totalBaseStat = data.stats.reduce(
+      (acc: number, stat: any) => acc + stat.base_stat,
+      0,
+    );
+    setData(
+      `${pokemonKey}${id}`,
+      JSON.stringify({
+        name: data.name.replace("-", ""),
+        image:
+          data.sprites.other["official-artwork"]?.front_default ??
+          data.sprites.front_default,
+        id: data.id,
+        types: data.types.map((type: any) => type.type.name),
+        length: data.name.length,
+        totalBaseStat,
+      }),
+    );
     return {
       name: data.name.replace("-", ""),
       image:

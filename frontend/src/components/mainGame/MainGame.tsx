@@ -16,6 +16,19 @@ const MainGame = ({
   const lastJsonMessage = useSocketFunction(
     (s: TSocketFunction) => s.webSocketMessage,
   );
+  const [timeRemaining, setTimeRemaining] = useState<number>(
+    room?.round.timeRemaining ? room.round.timeRemaining / 1000 : 0,
+  );
+  useEffect(() => {
+    if (Array.isArray(lastJsonMessage) || !lastJsonMessage) return;
+    if (lastJsonMessage.type === "Hint") {
+      console.log(lastJsonMessage);
+    }
+  }, [lastJsonMessage]);
+  useEffect(() => {
+    if (!room) return;
+    setTimeRemaining(room.round.timeRemaining / 1000);
+  }, [room?.round.timeRemaining]);
   if (!room) {
     return <div>Initializing</div>;
   }
@@ -26,12 +39,6 @@ const MainGame = ({
   const currentGuessered = room.round.correctGuesses?.includes(
     currentUserId ?? "",
   );
-  const [timeRemaining, setTimeRemaining] = useState<number>(
-    room.round.timeRemaining / 1000,
-  );
-  useEffect(() => {
-    setTimeRemaining(room.round.timeRemaining / 1000);
-  }, [room.round.timeRemaining]);
 
   return (
     <div>

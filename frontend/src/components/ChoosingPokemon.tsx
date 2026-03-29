@@ -14,13 +14,14 @@ const ChoosingPokemon = ({
 }: ChoosingPokemonProps) => {
   const isDrawer = pokemon && pokemon.length > 0;
   useEffect(() => {
+    if (!isDrawer) return;
     const timeout = setTimeout(() => {
       sendJsonMessage({
         type: "Pokemon_Chosen",
         pokemon: {
-          name: pokemon?.[0]?.name ?? "Charmander",
-          image: pokemon?.[0]?.image ?? "",
-          id: pokemon?.[0]?.id ?? 0,
+          name: pokemon[0].name,
+          image: pokemon[0].image,
+          id: pokemon[0].id,
         },
       });
     }, 10000);

@@ -51,13 +51,39 @@ const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
   const lastJsonMessage = useSocketFunction(
     (s: TSocketFunction) => s.webSocketMessage,
   );
-  if (!room) {
-    return <div>Initializing</div>;
-  }
-  const [screen, setScreen] = useState<Screen>({
-    type: "Room_Update",
-    room,
-  });
+  const [screen, setScreen] = useState<Screen | null>(null);
+
+  useEffect(() => {
+    if (room && !screen) {
+      setScreen({ type: "Room_Update", room });
+    }
+  }, [room, screen]);
+
+  useEffect(() => {
+    if (!lastJsonMessage) return;
+    if (Array.isArray(lastJsonMessage)) return;
+    if (lastJsonMessage.type === "Pokemon_Choose") {
+      setScreen({
+        type: "Pokemon_Choose",
+        pokemon: lastJsonMessage.pokemon,
+        text: lastJsonMessage.text,
+      });
+    }
+    if (lastJsonMessage.type === "Timeout") {
+      setScreen({
+        type: "Timeout",
+        drawerId: lastJsonMessage.drawer,
+        pokemon: lastJsonMessage.pokemon,
+      });
+    }
+    if (lastJsonMessage.type === "Room_Update") {
+      setScreen({
+        type: "Room_Update",
+        room: lastJsonMessage.room,
+      });
+    }
+  }, [lastJsonMessage]);
+
   useEffect(() => {
     if (!lastJsonMessage) return;
     if (Array.isArray(lastJsonMessage)) return;
@@ -72,7 +98,7 @@ const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
     if (lastJsonMessage.type === "Timeout") {
       setScreen({
         type: "Timeout",
-        drawerId: lastJsonMessage.drawerId,
+        drawerId: lastJsonMessage.drawer,
         pokemon: lastJsonMessage.pokemon,
       });
     }
@@ -83,6 +109,10 @@ const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
       });
     }
   }, [lastJsonMessage]);
+
+  if (!room || !screen) {
+    return <div>Initializing</div>;
+  }
   if (screen.type === "Pokemon_Choose") {
     return (
       <ChoosingPokemon

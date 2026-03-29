@@ -21,6 +21,8 @@ type LobbyGameProps = {
 };
 
 const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
+  const link = window.location.origin + window.location.pathname;
+
   const activeGeneration = generationsList.filter((gen) =>
     room.settings.generation.includes(gen.index),
   );
@@ -33,49 +35,148 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
 
   const updateSettings = (settings: Partial<Room["settings"]>) =>
     sendJsonMessage({ type: "Update_Settings", settings });
-  console.log(room.players);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-100 via-orange-50 to-amber-100 font-sans">
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-amber-900 tracking-tight">
-            Battle Lobby 🔥
-          </h1>
-          <p className="text-amber-700 text-sm mt-1 font-medium">
-            Gather your team before the battle begins
-          </p>
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-extrabold text-amber-900 tracking-tight">
+              Battle Lobby
+            </h1>
+            <p className="text-amber-700 text-sm mt-1 font-medium">
+              Gather your team before the battle begins
+            </p>
+          </div>
+          <button
+            onClick={async () => {
+              await navigator.clipboard.writeText(link);
+            }}
+            className="text-sm font-bold px-4 py-2 rounded-lg bg-amber-50 text-amber-400 border border-amber-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95 whitespace-nowrap"
+          >
+            Invite others
+          </button>
         </div>
-        <div className="bg-white/70 backdrop-blur-sm border border-amber-200 rounded-2xl p-5 mb-4 shadow-sm shadow-amber-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-extrabold uppercase tracking-widest text-amber-800">
-              Trainers
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-white/70 backdrop-blur-sm border border-amber-200 rounded-2xl p-5 shadow-sm shadow-amber-200">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-extrabold uppercase tracking-widest text-amber-800">
+                Trainers
+              </h2>
+              <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200">
+                {room.players.length} / {room.settings.maxPlayers}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2 min-h-[48px] content-start">
+              {room.players.map((player) => (
+                <div
+                  key={player.playerId}
+                  className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full pl-1 pr-3 py-1 hover:border-orange-300 hover:bg-orange-50 transition-colors"
+                >
+                  <img
+                    className="w-8 h-8 rounded-full object-cover bg-amber-100"
+                    src={`https://img.pokemondb.net/sprites/lets-go-pikachu-eevee/normal/${player.avatar}.png`}
+                    alt={player.name}
+                  />
+                  <span className="text-sm font-bold text-amber-900">
+                    {player.name}
+                  </span>
+                </div>
+              ))}
+              {room.players.length === 0 && (
+                <p className="text-sm text-amber-400 italic">
+                  No trainers yet…
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="bg-white/70 backdrop-blur-sm border border-amber-200 rounded-2xl p-5 shadow-sm shadow-amber-200">
+            <h2 className="text-sm font-extrabold uppercase tracking-widest text-amber-800 mb-4">
+              Game Rules
             </h2>
-            <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200">
-              {room.players.length} / {room.settings.maxPlayers}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {room.players.map((player) => (
-              <div
-                key={player.playerId}
-                className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full pl-1 pr-3 py-1 hover:border-orange-300 hover:bg-orange-50 transition-colors"
-              >
-                <img
-                  className="w-8 h-8 rounded-full object-cover bg-amber-100"
-                  src={`https://img.pokemondb.net/sprites/lets-go-pikachu-eevee/normal/${player.avatar}.png`}
-                  alt={player.name}
-                />
-                <span className="text-sm font-bold text-amber-900">
-                  {player.name}
-                </span>
-              </div>
-            ))}
-            {room.players.length === 0 && (
-              <p className="text-sm text-amber-400 italic">No trainers yet…</p>
-            )}
+            <div className="flex flex-col gap-3">
+              {[
+                {
+                  label: "Max Players",
+                  canDec: room.settings.maxPlayers > 3,
+                  canInc: room.settings.maxPlayers < 10,
+                  onDec: () =>
+                    updateSettings({
+                      ...room.settings,
+                      maxPlayers: room.settings.maxPlayers - 1,
+                    }),
+                  onInc: () =>
+                    updateSettings({
+                      ...room.settings,
+                      maxPlayers: room.settings.maxPlayers + 1,
+                    }),
+                  display: `${room.settings.maxPlayers}`,
+                },
+                {
+                  label: "Rounds",
+                  canDec: room.settings.maxRounds > 1,
+                  canInc: room.settings.maxRounds < 10,
+                  onDec: () =>
+                    updateSettings({
+                      ...room.settings,
+                      maxRounds: room.settings.maxRounds - 1,
+                    }),
+                  onInc: () =>
+                    updateSettings({
+                      ...room.settings,
+                      maxRounds: room.settings.maxRounds + 1,
+                    }),
+                  display: `${room.settings.maxRounds}`,
+                },
+                {
+                  label: "Time per Round",
+                  canDec: room.settings.maxTime > 10000,
+                  canInc: room.settings.maxTime < 60000,
+                  onDec: () =>
+                    updateSettings({
+                      ...room.settings,
+                      maxTime: room.settings.maxTime - 5000,
+                    }),
+                  onInc: () =>
+                    updateSettings({
+                      ...room.settings,
+                      maxTime: room.settings.maxTime + 5000,
+                    }),
+                  display: `${room.settings.maxTime / 1000}s`,
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 hover:border-orange-300 transition-colors"
+                >
+                  <span className="text-sm font-bold text-amber-800">
+                    {item.label}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      disabled={!item.canDec}
+                      onClick={item.onDec}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-red-50 hover:border-red-200 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
+                    >
+                      −
+                    </button>
+                    <span className="text-base font-extrabold text-amber-900 w-10 text-center tabular-nums">
+                      {item.display}
+                    </span>
+                    <button
+                      disabled={!item.canInc}
+                      onClick={item.onInc}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="bg-white/70 backdrop-blur-sm border border-amber-200 rounded-2xl p-5 mb-4 shadow-sm shadow-amber-200">
+        <div className="bg-white/70 backdrop-blur-sm border border-amber-200 rounded-2xl p-5 mb-8 shadow-sm shadow-amber-200">
           <h2 className="text-sm font-extrabold uppercase tracking-widest text-amber-800 mb-4">
             Generations
           </h2>
@@ -117,126 +218,6 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
                   <p className="text-xs text-amber-300 italic">All active!</p>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Game rules card */}
-        <div className="bg-white/70 backdrop-blur-sm border border-amber-200 rounded-2xl p-5 mb-8 shadow-sm shadow-amber-200">
-          <h2 className="text-sm font-extrabold uppercase tracking-widest text-amber-800 mb-4">
-            Game Rules
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* Max Players */}
-            <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 hover:border-orange-300 transition-colors">
-              <button
-                disabled={room.settings.maxPlayers <= 3}
-                onClick={() =>
-                  room.settings.maxPlayers > 3 &&
-                  updateSettings({
-                    ...room.settings,
-                    maxPlayers: room.settings.maxPlayers - 1,
-                  })
-                }
-                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-red-50 hover:border-red-200 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
-              >
-                −
-              </button>
-              <div className="text-center">
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-amber-500">
-                  Players
-                </p>
-                <p className="text-lg font-extrabold text-amber-900 leading-tight">
-                  {room.settings.maxPlayers}
-                </p>
-              </div>
-              <button
-                disabled={room.settings.maxPlayers >= 10}
-                onClick={() =>
-                  room.settings.maxPlayers < 10 &&
-                  updateSettings({
-                    ...room.settings,
-                    maxPlayers: room.settings.maxPlayers + 1,
-                  })
-                }
-                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
-              >
-                +
-              </button>
-            </div>
-
-            {/* Max Rounds */}
-            <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 hover:border-orange-300 transition-colors">
-              <button
-                disabled={room.settings.maxRounds <= 1}
-                onClick={() =>
-                  room.settings.maxRounds > 1 &&
-                  updateSettings({
-                    ...room.settings,
-                    maxRounds: room.settings.maxRounds - 1,
-                  })
-                }
-                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-red-50 hover:border-red-200 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
-              >
-                −
-              </button>
-              <div className="text-center">
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-amber-500">
-                  Rounds
-                </p>
-                <p className="text-lg font-extrabold text-amber-900 leading-tight">
-                  {room.settings.maxRounds}
-                </p>
-              </div>
-              <button
-                disabled={room.settings.maxRounds >= 10}
-                onClick={() =>
-                  room.settings.maxRounds < 10 &&
-                  updateSettings({
-                    ...room.settings,
-                    maxRounds: room.settings.maxRounds + 1,
-                  })
-                }
-                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
-              >
-                +
-              </button>
-            </div>
-            <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 hover:border-orange-300 transition-colors">
-              <button
-                disabled={room.settings.maxTime <= 10000}
-                onClick={() =>
-                  room.settings.maxTime > 10000 &&
-                  updateSettings({
-                    ...room.settings,
-                    maxTime: room.settings.maxTime - 5000,
-                  })
-                }
-                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-red-50 hover:border-red-200 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
-              >
-                −
-              </button>
-              <div className="text-center">
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-amber-500">
-                  Time
-                </p>
-                <p className="text-lg font-extrabold text-amber-900 leading-tight">
-                  {room.settings.maxTime / 1000}s
-                </p>
-              </div>
-              <button
-                disabled={room.settings.maxTime >= 60000}
-                onClick={() =>
-                  room.settings.maxTime < 60000 &&
-                  updateSettings({
-                    ...room.settings,
-                    maxTime: room.settings.maxTime + 5000,
-                  })
-                }
-                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
-              >
-                +
-              </button>
             </div>
           </div>
         </div>

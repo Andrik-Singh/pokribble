@@ -43,7 +43,7 @@ export type IncomingWebSocketMessage =
     }
   | {
       type: "Timeout";
-      drawerId: string;
+      drawer: string;
       pokemon: PokemonDescription;
     }
   | {

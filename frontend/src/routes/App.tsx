@@ -109,6 +109,9 @@ const App = () => {
                 headers: { "Content-type": "application/json" },
                 body: JSON.stringify({}),
               });
+              if (!res.ok) {
+                throw new Error("Server failed");
+              }
               const data = await res.json();
               if (data) navigate(`/game/${data.id}`);
             } catch (error) {
@@ -163,6 +166,7 @@ const App = () => {
       </div>
       {floaters.map((floater) => (
         <div
+          role="button"
           onClick={() => {
             setAvatar(pokemonNames[floater.pokemonId - 1]);
             window.localStorage.setItem(
@@ -171,7 +175,7 @@ const App = () => {
             );
           }}
           key={floater.id}
-          className="absolute left-0 flex flex-col items-center opacity-80"
+          className="absolute left-0 flex flex-col items-center opacity-80 cursor-pointer"
           style={{
             top: `${floater.y}%`,
             animation: `floatAcross ${floater.duration}s linear forwards`,

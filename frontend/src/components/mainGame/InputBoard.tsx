@@ -27,6 +27,7 @@ const InputBoard = ({
       />
       <button
         onClick={() => {
+          if (!input.trim() || !userId) return;
           sendJsonMessage({ type: "Guess", guess: input, userId });
           setInput("");
         }}

@@ -8,6 +8,7 @@ import type { IncomingWebSocketMessage, Room, RoomResponse } from "../types";
 import { useSocketFunction } from "../zustand/sockets";
 import { useAvatarChange } from "../zustand/avatar";
 import { random151Pokemon, STORAGE_KEY } from "../utils/randomNumbers";
+import { toast } from "react-toastify";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -16,8 +17,6 @@ const Game = () => {
     useSocketFunction();
   const setAvatar = useAvatarChange((s) => s.setAvatar);
   const avatar = useAvatarChange((s) => s.avatar);
-  console.log(window.localStorage.getItem(STORAGE_KEY));
-  console.log(avatar);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -91,6 +90,18 @@ const Game = () => {
     }
     if (lastJsonMessage.type === "Room_Update") {
       setRoomContent(lastJsonMessage.room);
+    }
+    if (lastJsonMessage.type === "Hint") {
+      console.log(lastJsonMessage);
+    }
+    if (lastJsonMessage.type === "Guess_Result") {
+      if (lastJsonMessage.correct) {
+        toast(`You guessed the word!`);
+      } else {
+        toast(`You guessed the word incorrectly
+            you were ${lastJsonMessage.distance} away
+          `);
+      }
     }
     setLastJsonMessage(lastJsonMessage);
   }, [lastJsonMessage]);

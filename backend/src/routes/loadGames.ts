@@ -77,6 +77,10 @@ export default async function loadGames(fastify: FastifyInstance) {
         connection.close();
         return;
       }
+      if (!userName) {
+        connection.close();
+        return;
+      }
       myRoom.players.set(userId, {
         playerId: userId,
         score: 0,

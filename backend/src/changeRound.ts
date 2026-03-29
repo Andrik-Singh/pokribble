@@ -1,4 +1,4 @@
-import { choosingPokemon } from "./choosingPokemon.js";
+import { choosingPokemon } from "./pokemon/choosingPokemon.js";
 import { Room } from "./utils.js";
 
 export async function changeRound(myRoom: Room, drawerIndex: number) {

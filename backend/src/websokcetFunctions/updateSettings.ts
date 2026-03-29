@@ -19,13 +19,25 @@ export const updateSettings = (
   ) {
     return;
   }
-  if (message.settings.maxPlayers < 3 || message.settings.maxPlayers > 10) {
+  if (
+    !Number.isInteger(message.settings.maxPlayers) ||
+    message.settings.maxPlayers < 3 ||
+    message.settings.maxPlayers > 10
+  ) {
     return;
   }
-  if (message.settings.maxRounds < 1 || message.settings.maxRounds > 10) {
+  if (
+    !Number.isInteger(message.settings.maxRounds) ||
+    message.settings.maxRounds < 1 ||
+    message.settings.maxRounds > 10
+  ) {
     return;
   }
-  if (message.settings.maxTime < 10000 || message.settings.maxTime > 80000) {
+  if (
+    !Number.isInteger(message.settings.maxTime) ||
+    message.settings.maxTime < 10000 ||
+    message.settings.maxTime > 80000
+  ) {
     return;
   }
   const { maxPlayers, maxRounds, maxTime, generation } = message.settings;
@@ -36,6 +48,13 @@ export const updateSettings = (
     maxTime,
   };
   if (generation) {
+    if (
+      !Array.isArray(generation) ||
+      generation.length === 0 ||
+      !generation.every((g) => Number.isInteger(g) && g >= 1 && g <= 9)
+    ) {
+      return;
+    }
     myRoom.settings.generation = generation;
   }
   broadcastRoomState(myRoom);

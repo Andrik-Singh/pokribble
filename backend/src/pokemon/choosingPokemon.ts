@@ -1,5 +1,5 @@
-import { getRandomPokemon } from "./pokemon/sendPokemonDescription.js";
-import { Room } from "./utils.js";
+import { getRandomPokemon } from "./sendPokemonDescription.js";
+import { Room } from "../utils.js";
 
 export async function choosingPokemon(myRoom: Room, drawerIndex: number) {
   const players = Array.from(myRoom.players.keys());

@@ -1,10 +1,10 @@
+import "./env.js";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
-import dotEnv from "dotenv";
 import assignGame from "./routes/assignGames.js";
 import loadGames from "./routes/loadGames.js";
 import fastifyWebsocket from "@fastify/websocket";
-dotEnv.config();
+import { redisClient } from "./redis.js";
 const fastify = Fastify({
   logger: true,
 });
@@ -15,6 +15,8 @@ await fastify.register(cors, {
 });
 fastify.register(assignGame);
 fastify.register(loadGames);
+redisClient.ping();
+console.log("Redis connected");
 const start = async () => {
   try {
     await fastify.listen({ port: 4000 });

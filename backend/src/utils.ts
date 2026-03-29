@@ -104,6 +104,10 @@ export const serializeRoom = (myRoom: Room) =>
       players: Array.from(myRoom.players.values()).map(
         ({ socketReference, ...rest }) => rest,
       ),
+      round: {
+        ...myRoom.round,
+        timerId: undefined,
+      },
     },
   });
 export function levenshtein(a: string, b: string): number {

@@ -21,8 +21,6 @@ const AvatarSelection = () => {
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     stored ? setAvatar(stored) : storeRandomAvatar();
-    console.log(stored);
-    console.log(avatar);
   }, []);
 
   const handleRandomize = () => {

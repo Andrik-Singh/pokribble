@@ -27,7 +27,7 @@
 @theme {
   --animate-float: floatAcross 15s linear forwards;
   --animate-bob: bob 1.8s ease-in-out infinite;
-  --animate-background: scroll-grass 8s linear infinite;
+  --animate-background: slowTraverse 8s linear infinite;
   --font-pokemon: "Pokemon Solid", sans-serif;
 }
 

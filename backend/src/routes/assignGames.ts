@@ -14,7 +14,7 @@ export default function assignGame(
       started: false,
       settings: {
         maxPlayers: 4,
-        generation: [1, 2, 3, 4, 5, 8, 9],
+        generation: [1, 2, 3, 4, 5, 6, 7, 8, 9],
         maxRounds: 2,
         maxTime: 60 * 1000,
       },
