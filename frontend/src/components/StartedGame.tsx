@@ -45,6 +45,9 @@ type Screen =
   | {
       type: "Hint";
       hint: string;
+    }
+  | {
+      type: "Setting_Up";
     };
 const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
   const room = useSocketFunction((s: TSocketFunction) => s.roomContent);
@@ -62,6 +65,9 @@ const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
   useEffect(() => {
     if (!lastJsonMessage) return;
     if (Array.isArray(lastJsonMessage)) return;
+    if (lastJsonMessage.type === "Setting_Up") {
+      setScreen({ type: "Setting_Up" });
+    }
     if (lastJsonMessage.type === "Pokemon_Choose") {
       setScreen({
         type: "Pokemon_Choose",
@@ -124,6 +130,9 @@ const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
   }
   if (screen.type === "Timeout") {
     return <Timeout pokemon={screen.pokemon} drawer={screen.drawerId} />;
+  }
+  if (screen.type === "Setting_Up") {
+    return <div>Setting Up</div>;
   }
   return (
     <MainGame currentUserId={currentUserId} sendJsonMessage={sendJsonMessage} />

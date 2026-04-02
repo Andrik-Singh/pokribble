@@ -57,7 +57,12 @@ function isBaseForm(name: string): boolean {
   if (name.includes("-")) return false;
   return true;
 }
-
+const clearPokemonCache = async () => {
+  const keys = await redisClient.keys("pokemon:hint:*");
+  if (keys.length === 0) return;
+  await redisClient.del(...keys);
+  console.log(`Deleted ${keys.length} keys`);
+};
 export async function getRandomPokemon(generation?: number) {
   if (generation !== undefined && !GEN_RANGES[generation]) {
     console.error("Invalid generation: must be between 1 and 9");

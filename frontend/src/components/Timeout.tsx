@@ -4,7 +4,6 @@ export type TimeoutProps = {
 };
 
 const Timeout = ({ pokemon, drawer }: TimeoutProps) => {
-  console.log(drawer);
   return (
     <div className="flex flex-col min-h-screen items-center justify-center p-8 text-center bg-gray-900 text-white shadow-2xl space-y-4">
       <h2 className="text-3xl font-bold text-red-500">Time's Up!</h2>

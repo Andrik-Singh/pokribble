@@ -61,7 +61,13 @@ export type IncomingWebSocketMessage =
     }
   | {
       type: "Hint";
-      hint: string;
+      value: {
+        type: string;
+        value: string | string[];
+      };
+    }
+  | {
+      type: "Setting_Up";
     }
   | [number, number, number, string, number, "pen" | "eraser"];
 export type OutgoingWebSocketMessage =

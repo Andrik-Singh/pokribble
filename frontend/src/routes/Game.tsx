@@ -92,7 +92,10 @@ const Game = () => {
       setRoomContent(lastJsonMessage.room);
     }
     if (lastJsonMessage.type === "Hint") {
-      console.log(lastJsonMessage);
+      setLastJsonMessage(lastJsonMessage);
+    }
+    if (lastJsonMessage.type === "Setting_Up") {
+      setLastJsonMessage(lastJsonMessage);
     }
     if (lastJsonMessage.type === "Guess_Result") {
       if (lastJsonMessage.correct) {

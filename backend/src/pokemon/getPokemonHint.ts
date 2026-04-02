@@ -8,13 +8,13 @@ export async function getPokemonHint(pokemonId?: number): Promise<{
   if (!pokemonId) return null;
   try {
     const cachedData: {
-      type: string[];
+      types: string[];
       length: number;
       totalBaseStat: number;
     } | null = await getData(`${pokemonKey}${pokemonId}`);
     if (cachedData) {
       return {
-        type: cachedData.type,
+        type: cachedData.types,
         length: cachedData.length,
         totalBaseStat: cachedData.totalBaseStat,
       };
@@ -24,13 +24,15 @@ export async function getPokemonHint(pokemonId?: number): Promise<{
       throw new Error(`PokeAPI request failed with status ${res.status}`);
     }
     const data = await res.json();
+    const type = data.types.map((t: { type: { name: string } }) => t.type.name);
+    const totalBaseStat = data.stats.reduce(
+      (acc: number, stat: any) => acc + stat.base_stat,
+      0,
+    );
     return {
-      type: data.types.map((t: { type: { name: string } }) => t.type.name),
+      type,
       length: data.name.length,
-      totalBaseStat: data.stats.reduce(
-        (acc: number, stat: any) => acc + stat.base_stat,
-        0,
-      ),
+      totalBaseStat,
     };
   } catch (err) {
     console.error(err);

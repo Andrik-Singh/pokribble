@@ -9,8 +9,22 @@ import { updateSettings } from "./updateSettings.js";
 const gameStart = async (myRoom: Room) => {
   myRoom.started = true;
   myRoom.round.drawerIndex = 0;
+  myRoom.round.currentRound = 1;
   broadcastRoomState(myRoom);
-  await choosingPokemon(myRoom, myRoom.round.drawerIndex);
+  try {
+    myRoom.players.forEach((player) => {
+      player.score = 0;
+      player.socketReference?.send(
+        JSON.stringify({
+          type: "Setting_Up",
+        }),
+      );
+    });
+    await choosingPokemon(myRoom, myRoom.round.drawerIndex);
+  } catch (error) {
+    console.log("Error in game start", error);
+    returnToLobby(myRoom);
+  }
 };
 
 const returnToLobby = (myRoom: Room) => {

@@ -4,6 +4,7 @@ import { useSocketFunction, type TSocketFunction } from "../../zustand/sockets";
 import ClientDrawingBoard from "./ClientDrawingBoard";
 import SideBar from "./SideBar";
 import InputBoard from "./InputBoard";
+import HintSection from "./HintSection";
 
 const MainGame = ({
   currentUserId,
@@ -19,12 +20,29 @@ const MainGame = ({
   const [timeRemaining, setTimeRemaining] = useState<number>(
     room?.round.timeRemaining ? room.round.timeRemaining / 1000 : 0,
   );
+  const [hints, setHints] = useState<{
+    length: number | null;
+    basestat: number | null;
+    type: string[] | null;
+  }>({
+    length: null,
+    basestat: null,
+    type: null,
+  });
+
   useEffect(() => {
     if (Array.isArray(lastJsonMessage) || !lastJsonMessage) return;
     if (lastJsonMessage.type === "Hint") {
-      console.log(lastJsonMessage);
+      setHints((prev) => {
+        return {
+          ...prev,
+          [lastJsonMessage.value.type.toLocaleLowerCase()]:
+            lastJsonMessage.value.value,
+        };
+      });
     }
   }, [lastJsonMessage]);
+  console.log(hints);
   useEffect(() => {
     if (!room) return;
     setTimeRemaining(room.round.timeRemaining / 1000);
@@ -60,6 +78,7 @@ const MainGame = ({
       </div>
       <div className="flex w-full flex-col">
         <SideBar room={room} />
+        <HintSection hints={hints} />
         {isDrawer ? (
           <DrawingBoard sendJsonMessage={sendJsonMessage} />
         ) : (

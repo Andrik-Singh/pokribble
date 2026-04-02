@@ -7,6 +7,7 @@ const sendMessage = (
   value?: { type: string; value: string | string[] },
 ) => {
   if (!value) return;
+  console.log(value.value);
   myRoom.players.forEach((player) => {
     if (player.socketReference?.readyState === WebSocket.OPEN) {
       player.socketReference.send(JSON.stringify({ type: "Hint", value }));
@@ -44,19 +45,20 @@ export const pokemonChoose = async (
     }
     const secondsRemaining = Math.floor(myRoom.round.timeRemaining / 1000);
     const maxSecs = myRoom.settings.maxTime / 1000;
-    if (secondsRemaining === maxSecs / 1.5) {
+    if (secondsRemaining === Math.floor(maxSecs / 1.5)) {
+      console.log(hints);
       sendMessage(
         myRoom,
         hints ? { type: "Type", value: hints.type } : undefined,
       );
     }
-    if (secondsRemaining === maxSecs / 2) {
+    if (secondsRemaining === Math.floor(maxSecs / 2)) {
       sendMessage(
         myRoom,
         hints ? { type: "Length", value: hints.length.toString() } : undefined,
       );
     }
-    if (secondsRemaining === maxSecs / 3) {
+    if (secondsRemaining === Math.floor(maxSecs / 3)) {
       sendMessage(
         myRoom,
         hints
