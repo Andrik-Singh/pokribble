@@ -4,14 +4,16 @@ import useWebSocket from "react-use-websocket";
 import StartedGame from "../components/StartedGame";
 import LobbyGame from "../components/LobbyGame";
 import ScoreBoard from "../components/ScoreBoard";
-import type { IncomingWebSocketMessage, Room, RoomResponse } from "../types";
+import type { IncomingWebSocketMessage, RoomResponse } from "../types";
 import { useSocketFunction } from "../zustand/sockets";
 import { useAvatarChange } from "../zustand/avatar";
 import { random151Pokemon, STORAGE_KEY } from "../utils/randomNumbers";
 import { toast } from "react-toastify";
+import Canvas404 from "./NotFound";
+import { API_URL, WS_URL } from "../utils/config";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
+const backendUrl = API_URL + "/api";
+const baseWsUrl = WS_URL + "/api/ws";
 const Game = () => {
   const { roomContent, setRoomContent, setLastJsonMessage } =
     useSocketFunction();
@@ -23,7 +25,7 @@ const Game = () => {
   const [currentUserName, setCurrentUserName] = useState<string | null>(null);
   const { gameId } = useParams();
   const wsUrl = currentUserId
-    ? `${backendUrl}/ws/${gameId}?${new URLSearchParams({
+    ? `${baseWsUrl}/${gameId}?${new URLSearchParams({
         userId: currentUserId,
         userName: currentUserName ?? "",
         avatar: avatar ?? random151Pokemon(),
@@ -118,7 +120,12 @@ const Game = () => {
     setAvatar(window.localStorage.getItem(STORAGE_KEY) ?? "");
   }, []);
   if (loading) return <div>Loading</div>;
-  if (error) return <div>{error}</div>;
+  if (error)
+    return (
+      <div>
+        <Canvas404 />
+      </div>
+    );
   if (!roomContent) return <div>Initializing</div>;
   return (
     <div>

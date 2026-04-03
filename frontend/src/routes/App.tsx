@@ -4,8 +4,9 @@ import InputName from "../components/appearance/InputName";
 import AvatarSelection from "../components/appearance/AvatarSelection";
 import { useAvatarChange } from "../zustand/avatar";
 import { pokemonNames } from "../utils/randomNumbers";
+import { API_URL } from "../utils/config";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = API_URL + "/api";
 
 let floaterId = 0;
 const skribblRules = [
@@ -25,7 +26,6 @@ const images = "./assets/bg-1.png";
 const App = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-  const [isPaused, setIsPaused] = useState(false);
   const setAvatar = useAvatarChange(
     (s: { setAvatar: (avatar: string) => void }) => s.setAvatar,
   );
@@ -85,7 +85,6 @@ const App = () => {
         animationDuration: "60s",
         animationTimingFunction: "linear",
         animationIterationCount: "infinite",
-        animationPlayState: isPaused ? "paused" : "running",
       }}
       className="bg-[#1a120b] h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden gap-8"
     >

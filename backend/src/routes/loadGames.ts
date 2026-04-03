@@ -117,6 +117,7 @@ export default async function loadGames(fastify: FastifyInstance) {
     connection.on("close", () => {
       if (myRoom.started) {
         const existingPlayer = myRoom.players.get(userId);
+        console.log(existingPlayer);
         if (!existingPlayer) {
           return;
         }
