@@ -69,6 +69,10 @@ export type IncomingWebSocketMessage =
   | {
       type: "Setting_Up";
     }
+  | {
+      type: "Timer_Tick";
+      timeRemaining: number;
+    }
   | [number, number, number, string, number, "pen" | "eraser"];
 export type OutgoingWebSocketMessage =
   | { type: "Toggle_Generation"; generation: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 }

@@ -5,29 +5,37 @@ export function broadcastRoomState(myRoom: Room) {
     ({ socketReference, ...rest }) => rest,
   );
 
+  const { timerId, ...restRound } = myRoom.round;
+  const fullPayload = JSON.stringify({
+    type: "Room_Update",
+    room: { ...myRoom, players, round: restRound },
+  });
+
+  const hiddenPayload = JSON.stringify({
+    type: "Room_Update",
+    room: { ...myRoom, players, round: { ...restRound, pokemon: null } },
+  });
+  const correctGuesses = new Set(myRoom.round.correctGuesses);
   myRoom.players.forEach((p) => {
     if (!p.socketReference) return;
 
-    const shouldHidePokemon =
-      myRoom.started &&
-      myRoom.round.pokemon &&
-      p.playerId !== myRoom.round.drawerId &&
-      !myRoom.round.correctGuesses?.includes(p.playerId);
+    const isDrawer =
+      !myRoom.started ||
+      !myRoom.round.pokemon ||
+      p.playerId === myRoom.round.drawerId ||
+      correctGuesses.has(p.playerId);
 
-    const { timerId, ...restRound } = myRoom.round;
-
-    const roundData = shouldHidePokemon
-      ? { ...restRound, pokemon: null }
-      : restRound;
-
-    const roomPayload = {
-      ...myRoom,
-      players,
-      round: roundData,
-    };
-
-    p.socketReference.send(
-      JSON.stringify({ type: "Room_Update", room: roomPayload }),
-    );
+    p.socketReference.send(isDrawer ? fullPayload : hiddenPayload);
+  });
+}
+export function broadcastTimerTick(myRoom: Room) {
+  const payload = JSON.stringify({
+    type: "Timer_Tick",
+    timeRemaining: myRoom.round.timeRemaining,
+  });
+  myRoom.players.forEach((p) => {
+    p.socketReference?.send(payload, {
+      compress: false,
+    });
   });
 }

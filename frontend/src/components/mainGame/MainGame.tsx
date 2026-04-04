@@ -42,7 +42,6 @@ const MainGame = ({
       });
     }
   }, [lastJsonMessage]);
-  console.log(hints);
   useEffect(() => {
     if (!room) return;
     setTimeRemaining(room.round.timeRemaining / 1000);
