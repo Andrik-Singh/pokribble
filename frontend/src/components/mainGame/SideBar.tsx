@@ -53,25 +53,26 @@ const SideBar = ({ room }: { room: Room }) => {
           return (
             <li
               key={player.playerId}
-              className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-help ${meta.card}`}
+              className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-help focus:outline-none focus:ring-2 focus:ring-slate-400 ${meta.card}`}
+              tabIndex={0}
             >
-              <span className="absolute left-1/2 -top-8 -translate-x-1/2 scale-0 group-hover:scale-100 transition-all duration-200 bg-slate-800 text-white text-[10px] px-2 py-1 rounded shadow-lg z-50 whitespace-nowrap pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-slate-800">
+              <span
+                role="tooltip"
+                className="absolute left-1/2 -top-8 -translate-x-1/2 scale-0 group-hover:scale-100 group-focus-within:scale-100 transition-all duration-200 bg-slate-800 text-white text-[10px] px-2 py-1 rounded shadow-lg z-50 whitespace-nowrap pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-slate-800"
+              >
                 {player.name}
-              </span>
-
+              </span>{" "}
               <span
                 className={`text-[11px] w-5 text-center shrink-0 ${meta.rank}`}
               >
                 {meta.label || `#${index + 1}`}
               </span>
-
               {/* Avatar */}
               <img
                 src={`${SPRITE_BASE_URL}${player.avatar}.png`}
                 alt={player.name} // Set alt to name for accessibility
                 className="w-8 h-8 rounded-full shrink-0 object-cover ring-2 ring-white"
               />
-
               {/* Score */}
               <span
                 className={`text-[11px] tabular-nums px-2 py-0.5 rounded-full shrink-0 ${meta.badge}`}

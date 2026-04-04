@@ -109,6 +109,7 @@ const DrawingBoard = ({
     const dpr = window.devicePixelRatio || 1;
     canvas.width = LOGICAL_W * dpr;
     canvas.height = LOGICAL_H * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
     ctx.fillStyle = "#f5f0e8";
     ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
@@ -285,8 +286,6 @@ const DrawingBoard = ({
       >
         <canvas
           ref={canvasRef}
-          width={LOGICAL_W}
-          height={LOGICAL_H}
           style={{
             display: "block",
             width: displaySize.width,
@@ -321,9 +320,9 @@ const DrawingBoard = ({
         <button onClick={undo} title="Undo (Ctrl+Z)" className={btnCls}>
           ↩️
         </button>
-        <button onClick={redo} title="Redo (Ctrl+Shift+Z)" className={btnCls}>
+        {/* <button onClick={redo} title="Redo (Ctrl+Shift+Z)" className={btnCls}>
           ↪️
-        </button>
+        </button> */}
         <button
           onClick={clearCanvas}
           title="Clear"

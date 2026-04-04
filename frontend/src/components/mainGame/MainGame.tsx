@@ -62,8 +62,8 @@ const MainGame = ({
           R {room.round.currentRound}/{room.settings.maxRounds}
         </span>
         <div className="font-mono bg-gray-100 px-3 py-1 rounded text-indigo-600 font-bold">
-          {Math.ceil(timeRemaining / 1000)}s
-        </div>
+          {Math.ceil((timeRemaining ?? 0) / 1000)}s
+        </div>{" "}
       </div>
 
       {/* HINT BAR — full width strip below header */}

@@ -48,14 +48,12 @@ const ClientDrawingBoard = () => {
     const ctx = canvas?.getContext("2d");
     if (!ctx || !canvas) return;
 
-    // Reset transform to clear the whole physical area
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "#f5f0e8";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     // Re-apply scaling for the redraw
     setupContext(ctx, displaySize.width);
 
+    // Fill background in logical coordinates (after scaling is applied)
+    ctx.fillStyle = "#f5f0e8";
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
     for (const stroke of strokeHistory.current) {
       ctx.globalCompositeOperation =
         stroke.tool === "eraser" ? "destination-out" : "source-over";
