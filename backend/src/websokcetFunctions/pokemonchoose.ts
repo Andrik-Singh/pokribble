@@ -1,4 +1,4 @@
-import { broadcastRoomState } from "../broadcast.js";
+import { broadcastRoomState, broadcastTimerTick } from "../broadcast.js";
 import { getPokemonHint } from "../pokemon/getPokemonHint.js";
 import { Room } from "../utils.js";
 import { timeout } from "./timeout.js";
@@ -68,7 +68,7 @@ export const pokemonChoose = async (
       );
     }
     myRoom.round.timeRemaining = myRoom.round.timeRemaining - 1000;
-    broadcastRoomState(myRoom);
+    broadcastTimerTick(myRoom);
 
     myRoom.round.timerId = setTimeout(runRoundTick, 1000);
   };

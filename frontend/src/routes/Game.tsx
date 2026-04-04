@@ -100,6 +100,11 @@ const Game = () => {
     if (lastJsonMessage.type === "Room_Update") {
       setRoomContent(lastJsonMessage.room);
     }
+    if (lastJsonMessage.type === "Timer_Tick") {
+      useSocketFunction
+        .getState()
+        .setTimeReamining(lastJsonMessage.timeRemaining);
+    }
     if (lastJsonMessage.type === "Hint") {
       setLastJsonMessage(lastJsonMessage);
     }

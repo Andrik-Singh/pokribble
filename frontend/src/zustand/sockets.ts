@@ -5,6 +5,8 @@ export type TSocketFunction = {
   setRoomContent: (room: Room) => void;
   webSocketMessage: IncomingWebSocketMessage | null;
   setLastJsonMessage: (message: IncomingWebSocketMessage) => void;
+  timeRemaining: number;
+  setTimeReamining: (time: number) => void;
 };
 export const useSocketFunction = create<TSocketFunction>((set) => ({
   roomContent: null,
@@ -12,4 +14,6 @@ export const useSocketFunction = create<TSocketFunction>((set) => ({
   webSocketMessage: null,
   setLastJsonMessage: (message: IncomingWebSocketMessage) =>
     set({ webSocketMessage: message }),
+  timeRemaining: 0,
+  setTimeReamining: (time: number) => set({ timeRemaining: time }),
 }));

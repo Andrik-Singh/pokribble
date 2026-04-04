@@ -106,7 +106,10 @@ const DrawingBoard = ({
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!ctx || !canvas) return;
-
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = LOGICAL_W * dpr;
+    canvas.height = LOGICAL_H * dpr;
+    ctx.scale(dpr, dpr);
     ctx.fillStyle = "#f5f0e8";
     ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
 
@@ -268,8 +271,32 @@ const DrawingBoard = ({
     };
   }, []);
   return (
-    <div className="bg-white min-h-screen w-full flex flex-col items-center justify-center gap-3 sm:gap-4 p-2 sm:p-6 font-[Nunito,sans-serif] overflow-hidden">
+    <div className="bg-white w-full flex flex-col items-center  gap-3 sm:gap-4 p-2 sm:p-6 font-[Nunito,sans-serif] overflow-hidden">
       {/* Toolbar */}
+
+      {/* Canvas */}
+      <div
+        ref={containerRef}
+        style={{
+          boxShadow:
+            "0 0 0 6px #c9a96e, 0 0 0 10px #8b6914, 0 20px 50px rgba(0,0,0,0.6)",
+        }}
+        className="rounded-md overflow-hidden"
+      >
+        <canvas
+          ref={canvasRef}
+          width={LOGICAL_W}
+          height={LOGICAL_H}
+          style={{
+            display: "block",
+            width: displaySize.width,
+            height: displaySize.height,
+            background: "#f5f0e8",
+            cursor: "crosshair",
+            touchAction: "none",
+          }}
+        />
+      </div>
       <div
         ref={toolbarRef}
         className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 bg-black border border-white/10 rounded-2xl px-3 py-2.5 sm:px-4 sm:py-2.5 backdrop-blur-md w-full max-w-3xl"
@@ -358,31 +385,6 @@ const DrawingBoard = ({
           ))}
         </div>
       </div>
-
-      {/* Canvas */}
-      <div
-        ref={containerRef}
-        style={{
-          boxShadow:
-            "0 0 0 6px #c9a96e, 0 0 0 10px #8b6914, 0 20px 50px rgba(0,0,0,0.6)",
-        }}
-        className="rounded-md overflow-hidden"
-      >
-        <canvas
-          ref={canvasRef}
-          width={LOGICAL_W}
-          height={LOGICAL_H}
-          style={{
-            display: "block",
-            width: displaySize.width,
-            height: displaySize.height,
-            background: "#f5f0e8",
-            cursor: "crosshair",
-            touchAction: "none",
-          }}
-        />
-      </div>
-
       <p className="text-black/20 text-[10px] tracking-widest hidden sm:block">
         CTRL+Z · CTRL+SHIFT+Z to undo / redo
       </p>

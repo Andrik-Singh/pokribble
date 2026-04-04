@@ -21,7 +21,7 @@ const InputBoard = ({
         sendJsonMessage({ type: "Guess", guess: input, userId });
         setInput("");
       }}
-      className="flex gap-2 bg-white fixed bottom-3 left-1/2 -translate-x-1/2"
+      className="flex flex-col md:flex-row gap-2 bg-transparent fixed bottom-3 left-1/2 -translate-x-1/2"
     >
       <input
         onChange={(e) => {
@@ -31,9 +31,11 @@ const InputBoard = ({
         type="text"
         aria-label="Enter your message"
         placeholder="Guess pokemon..."
-        className="border border-gray-300 rounded-md p-2 w-96"
+        className="border bg-gray-100 border-gray-300 rounded-md p-2 w-96"
       />
-      <button className="border border-gray-300 rounded-md p-2">Submit</button>
+      <button className="border bg-gray-100 border-gray-300 rounded-md p-2">
+        Submit
+      </button>
     </form>
   );
 };

@@ -46,16 +46,19 @@ const SideBar = ({ room }: { room: Room }) => {
         Leaderboard
       </h1>
 
-      <ul className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+      <ul className="grid md:grid-cols-1 grid-cols-2 gap-2">
         {sorted.map((player, index) => {
           const meta = rankMeta[index] ?? defaultMeta;
 
           return (
             <li
               key={player.playerId}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${meta.card}`}
+              className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-help ${meta.card}`}
             >
-              {/* Rank */}
+              <span className="absolute left-1/2 -top-8 -translate-x-1/2 scale-0 group-hover:scale-100 transition-all duration-200 bg-slate-800 text-white text-[10px] px-2 py-1 rounded shadow-lg z-50 whitespace-nowrap pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-slate-800">
+                {player.name}
+              </span>
+
               <span
                 className={`text-[11px] w-5 text-center shrink-0 ${meta.rank}`}
               >
@@ -65,14 +68,9 @@ const SideBar = ({ room }: { room: Room }) => {
               {/* Avatar */}
               <img
                 src={`${SPRITE_BASE_URL}${player.avatar}.png`}
-                alt={player.avatar}
+                alt={player.name} // Set alt to name for accessibility
                 className="w-8 h-8 rounded-full shrink-0 object-cover ring-2 ring-white"
               />
-
-              {/* Name */}
-              <span className={`flex-1 text-[12px] truncate ${meta.name}`}>
-                {player.name}
-              </span>
 
               {/* Score */}
               <span
