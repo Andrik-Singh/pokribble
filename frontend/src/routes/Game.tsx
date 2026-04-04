@@ -81,8 +81,15 @@ const Game = () => {
   }, [gameId]);
   const { sendJsonMessage, lastJsonMessage } =
     useWebSocket<IncomingWebSocketMessage>(wsUrl, {
+      share: true,
       reconnectAttempts: 10,
       reconnectInterval: 1000,
+      heartbeat: {
+        message: "ping",
+        returnMessage: "pong",
+        timeout: 60000,
+        interval: 25000,
+      },
     });
   useEffect(() => {
     if (!lastJsonMessage) return;

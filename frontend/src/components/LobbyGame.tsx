@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import type { OutgoingWebSocketMessage, Room } from "../types";
 
 type GenerationIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -223,7 +224,13 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
         </div>
         <div className="text-center">
           <button
-            onClick={() => sendJsonMessage({ type: "Game_Start" })}
+            onClick={() => {
+              if (room.players.length < 2) {
+                toast("At least 2 players are needed to start the game");
+                return;
+              }
+              sendJsonMessage({ type: "Game_Start" });
+            }}
             className="bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white font-extrabold text-base px-12 py-4 rounded-2xl shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 hover:-translate-y-0.5 active:translate-y-0.5 transition-all tracking-wide cursor-pointer"
           >
             Start Game

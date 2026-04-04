@@ -47,7 +47,8 @@ const ScoreBoard = ({ sendJsonMessage }: ScoreBoardProps) => {
   const rest = sortedPlayers.slice(3);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-amber-100 via-orange-50 to-amber-100 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-amber-100 via-orange-50 to-amber-100 font-sans">
+      {" "}
       <div className="max-w-2xl mx-auto px-4 py-10">
         <div className="text-center mb-10">
           <h1 className="text-3xl font-extrabold text-amber-900 tracking-tight">
