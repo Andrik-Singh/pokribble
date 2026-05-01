@@ -81,6 +81,9 @@ export default async function loadGames(fastify: FastifyInstance) {
         connection.close();
         return;
       }
+      if(!myRoom.owner){
+        myRoom.owner = userId;
+      } 
       myRoom.players.set(userId, {
         playerId: userId,
         score: 0,

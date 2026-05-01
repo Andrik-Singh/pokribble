@@ -12,7 +12,6 @@ import MainGame from "./mainGame/MainGame";
 type StartedGameProps = {
   currentUserId: string | null;
   sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
-  lastJsonMessage: IncomingWebSocketMessage | null;
 };
 
 export type TimeoutPayload = {

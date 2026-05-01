@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import useWebSocket from "react-use-websocket";
 import StartedGame from "../components/StartedGame";
-import LobbyGame from "../components/LobbyGame";
+import LobbyGame from "../components/lobby/LobbyGame";
 import ScoreBoard from "../components/ScoreBoard";
 import type { IncomingWebSocketMessage, RoomResponse } from "../types";
 import { useSocketFunction } from "../zustand/sockets";
@@ -11,6 +11,7 @@ import { random151Pokemon, STORAGE_KEY } from "../utils/randomNumbers";
 import { toast } from "react-toastify";
 import Canvas404 from "./NotFound";
 import { API_URL, WS_URL } from "../utils/config";
+import { useDrawingSocket } from "../zustand/drawing";
 
 const backendUrl = API_URL + "/api";
 const baseWsUrl = WS_URL + "/api/ws";
@@ -90,11 +91,17 @@ const Game = () => {
         timeout: 60000,
         interval: 25000,
       },
+      onMessage:(e)=>{
+        const data=JSON.parse(e.data) as IncomingWebSocketMessage
+        if(Array.isArray(data)){
+          useDrawingSocket.getState().setDrawingData(data)
+          return
+        }
+      }
     });
   useEffect(() => {
     if (!lastJsonMessage) return;
     if (Array.isArray(lastJsonMessage)) {
-      setLastJsonMessage(lastJsonMessage);
       return;
     }
     if (lastJsonMessage.type === "Room_Update") {
@@ -147,7 +154,6 @@ const Game = () => {
         <StartedGame
           currentUserId={currentUserId}
           sendJsonMessage={sendJsonMessage}
-          lastJsonMessage={lastJsonMessage}
         />
       ) : (
         <LobbyGame room={roomContent} sendJsonMessage={sendJsonMessage} />

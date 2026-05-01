@@ -34,6 +34,7 @@ export type Room = {
   gameEnded?: boolean;
   settings: Settings;
   round: Round;
+  owner?:string
 };
 export const room = new Map<string, Room>();
 const prefixes = [

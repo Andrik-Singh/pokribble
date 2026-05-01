@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from "react";
-import { useSocketFunction } from "../../zustand/sockets";
+import { useDrawingSocket } from "../../zustand/drawing";
 
 type Stroke = {
   tool: "pen" | "eraser";
@@ -9,7 +9,7 @@ type Stroke = {
 };
 
 const ClientDrawingBoard = () => {
-  const lastJsonMessage = useSocketFunction((s) => s.webSocketMessage);
+  const lastJsonMessage = useDrawingSocket((s) => s.drawingData);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const strokeHistory = useRef<Stroke[]>([]);
   const redoStack = useRef<Stroke[]>([]);

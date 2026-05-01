@@ -29,6 +29,7 @@ export type Room = {
   started: boolean;
   gameEnded?: boolean;
   round: Round;
+  owner:string;
 };
 export type RoomResponse = {
   text: string;

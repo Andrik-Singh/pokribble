@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
-import type { OutgoingWebSocketMessage, Room } from "../types";
+import type { OutgoingWebSocketMessage, Room } from "../../types";
+import Settings from "./Settings";
 
 type GenerationIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type GenerationListType = { name: string; index: GenerationIndex }[];
@@ -34,9 +35,8 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
   const toggleGeneration = (index: GenerationIndex) =>
     sendJsonMessage({ type: "Toggle_Generation", generation: index });
 
-  const updateSettings = (settings: Partial<Room["settings"]>) =>
-    sendJsonMessage({ type: "Update_Settings", settings });
-
+  const userId = window.localStorage.getItem("pokribble-user-id");
+  const disabled = userId !== room.owner;
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-100 via-orange-50 to-amber-100 font-sans">
       <div className="max-w-3xl mx-auto px-4 py-10">
@@ -69,21 +69,25 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
               </span>
             </div>
             <div className="flex flex-wrap gap-2 min-h-[48px] content-start">
-              {room.players.map((player) => (
-                <div
-                  key={player.playerId}
-                  className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full pl-1 pr-3 py-1 hover:border-orange-300 hover:bg-orange-50 transition-colors"
-                >
-                  <img
-                    className="w-8 h-8 rounded-full object-cover bg-amber-100"
-                    src={`https://img.pokemondb.net/sprites/lets-go-pikachu-eevee/normal/${player.avatar}.png`}
-                    alt={player.name}
-                  />
-                  <span className="text-sm font-bold text-amber-900">
-                    {player.name}
-                  </span>
-                </div>
-              ))}
+              {room.players.map((player) => {
+                const owner = player.playerId === room.owner;
+                return (
+                  <div
+                    key={player.playerId}
+                    title={owner ? "Room Owner" : undefined}
+                    className={"flex items-center gap-2  border border-amber-200 rounded-full pl-1 pr-3 py-1 transition-colors" + (owner ? " bg-green-400" : " bg-amber-50")}
+                  >
+                    <img
+                      className="w-8 h-8 rounded-full object-cover bg-amber-100"
+                      src={`https://img.pokemondb.net/sprites/lets-go-pikachu-eevee/normal/${player.avatar}.png`}
+                      alt={player.name}
+                    />
+                    <span className="text-sm font-bold text-amber-900">
+                      {player.name}
+                    </span>
+                  </div>
+                );
+              })}
               {room.players.length === 0 && (
                 <p className="text-sm text-amber-400 italic">
                   No trainers yet…
@@ -96,84 +100,7 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
               Game Rules
             </h2>
             <div className="flex flex-col gap-3">
-              {[
-                {
-                  label: "Max Players",
-                  canDec: room.settings.maxPlayers > 3,
-                  canInc: room.settings.maxPlayers < 10,
-                  onDec: () =>
-                    updateSettings({
-                      ...room.settings,
-                      maxPlayers: room.settings.maxPlayers - 1,
-                    }),
-                  onInc: () =>
-                    updateSettings({
-                      ...room.settings,
-                      maxPlayers: room.settings.maxPlayers + 1,
-                    }),
-                  display: `${room.settings.maxPlayers}`,
-                },
-                {
-                  label: "Rounds",
-                  canDec: room.settings.maxRounds > 1,
-                  canInc: room.settings.maxRounds < 10,
-                  onDec: () =>
-                    updateSettings({
-                      ...room.settings,
-                      maxRounds: room.settings.maxRounds - 1,
-                    }),
-                  onInc: () =>
-                    updateSettings({
-                      ...room.settings,
-                      maxRounds: room.settings.maxRounds + 1,
-                    }),
-                  display: `${room.settings.maxRounds}`,
-                },
-                {
-                  label: "Time per Round",
-                  canDec: room.settings.maxTime > 10000,
-                  canInc: room.settings.maxTime < 60000,
-                  onDec: () =>
-                    updateSettings({
-                      ...room.settings,
-                      maxTime: room.settings.maxTime - 5000,
-                    }),
-                  onInc: () =>
-                    updateSettings({
-                      ...room.settings,
-                      maxTime: room.settings.maxTime + 5000,
-                    }),
-                  display: `${room.settings.maxTime / 1000}s`,
-                },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 hover:border-orange-300 transition-colors"
-                >
-                  <span className="text-sm font-bold text-amber-800">
-                    {item.label}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      disabled={!item.canDec}
-                      onClick={item.onDec}
-                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-red-50 hover:border-red-200 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
-                    >
-                      −
-                    </button>
-                    <span className="text-base font-extrabold text-amber-900 w-10 text-center tabular-nums">
-                      {item.display}
-                    </span>
-                    <button
-                      disabled={!item.canInc}
-                      onClick={item.onInc}
-                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-amber-200 text-amber-600 font-bold text-base hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90 cursor-pointer"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))}
+              <Settings room={room} sendJsonMessage={sendJsonMessage} />
             </div>
           </div>
         </div>
@@ -192,7 +119,7 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
                   <button
                     key={gen.index}
                     onClick={() => toggleGeneration(gen.index)}
-                    disabled={activeGeneration.length <= 1}
+                    disabled={activeGeneration.length <= 1 || disabled}
                     className="text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200 hover:border-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
                   >
                     {gen.name}
@@ -210,6 +137,7 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
                   <button
                     key={gen.index}
                     onClick={() => toggleGeneration(gen.index)}
+                    disabled={disabled}
                     className="text-xs font-bold px-3 py-1.5 rounded-lg bg-amber-50 text-amber-400 border border-amber-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95"
                   >
                     {gen.name}
@@ -224,6 +152,7 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
         </div>
         <div className="text-center">
           <button
+            disabled={disabled || room.players.length < 2}
             onClick={() => {
               if (room.players.length < 2) {
                 toast("At least 2 players are needed to start the game");
