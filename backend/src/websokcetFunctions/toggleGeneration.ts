@@ -1,4 +1,4 @@
-import { broadcastRoomState } from "../broadcast.js";
+import {  broadcastSettings } from "../broadcast.js";
 import { Room } from "../utils.js";
 
 export const toggleGeneration = (
@@ -22,5 +22,5 @@ export const toggleGeneration = (
   } else {
     myRoom.settings.generation = [...currentGens, message.generation].sort();
   }
-  broadcastRoomState(myRoom);
+  broadcastSettings(myRoom);
 };

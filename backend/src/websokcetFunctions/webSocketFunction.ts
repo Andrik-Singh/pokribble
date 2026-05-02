@@ -16,7 +16,7 @@ const gameStart = async (myRoom: Room) => {
       player.score = 0;
       player.socketReference?.send(
         JSON.stringify({
-          type: "Setting_Up",
+          type: "Wait",
         }),
       );
     });

@@ -1,4 +1,4 @@
-import { broadcastRoomState } from "../broadcast.js";
+import { broadcastRoomState, broadcastSettings } from "../broadcast.js";
 import { Room } from "../utils.js";
 
 export const updateSettings = (
@@ -41,13 +41,7 @@ export const updateSettings = (
     return;
   }
   const { maxPlayers, maxRounds, maxTime, generation } = message.settings;
-  myRoom.settings = {
-    ...myRoom.settings,
-    maxPlayers,
-    maxRounds,
-    maxTime,
-  };
-  if (generation) {
+  if (generation !== undefined) {
     if (
       !Array.isArray(generation) ||
       generation.length === 0 ||
@@ -55,7 +49,14 @@ export const updateSettings = (
     ) {
       return;
     }
-    myRoom.settings.generation = generation;
   }
-  broadcastRoomState(myRoom);
+
+  myRoom.settings = {
+    ...myRoom.settings,
+    maxPlayers,
+    maxRounds,
+    maxTime,
+    ...(generation !== undefined ? { generation } : {}),
+  };
+  broadcastSettings(myRoom)
 };

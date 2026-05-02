@@ -29,6 +29,7 @@ export type Room = {
   started: boolean;
   gameEnded?: boolean;
   round: Round;
+  owner:string;
 };
 export type RoomResponse = {
   text: string;
@@ -68,10 +69,14 @@ export type IncomingWebSocketMessage =
     }
   | {
       type: "Setting_Up";
+      settings:Room["settings"]
     }
   | {
       type: "Timer_Tick";
       timeRemaining: number;
+    }
+    |{
+      type:"Wait"
     }
   | [number, number, number, string, number, "pen" | "eraser"];
 export type OutgoingWebSocketMessage =

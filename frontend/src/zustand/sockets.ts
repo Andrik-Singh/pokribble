@@ -8,6 +8,15 @@ export type TSocketFunction = {
   timeRemaining: number;
   setTimeReamining: (time: number) => void;
 };
+export type TsettingsChange = {
+  settings: {
+    maxPlayers: number;
+    maxRounds: number;
+    maxTime: number;
+    generation: (1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)[];
+  } | null;
+  setSettings: (settings: TsettingsChange["settings"]) => void;
+};
 export const useSocketFunction = create<TSocketFunction>((set) => ({
   roomContent: null,
   setRoomContent: (room: Room) => set({ roomContent: room }),
@@ -16,4 +25,9 @@ export const useSocketFunction = create<TSocketFunction>((set) => ({
     set({ webSocketMessage: message }),
   timeRemaining: 0,
   setTimeReamining: (time: number) => set({ timeRemaining: time }),
+}));
+export const useSettingsChange = create<TsettingsChange>((set) => ({
+  settings: null,
+  setSettings: (settings: TsettingsChange["settings"]) =>
+    set({ settings: settings }),
 }));

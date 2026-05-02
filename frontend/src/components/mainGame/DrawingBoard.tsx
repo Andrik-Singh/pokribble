@@ -87,9 +87,9 @@ const DrawingBoard = ({
     redraw();
     sendJsonMessage([5]);
   }, [redraw, sendJsonMessage]);
-
-  const throttledFlush = useRef(
-    throttle(() => {
+  const throttledFlush = useRef<ReturnType<typeof throttle> | null>(null);
+  useEffect(() => {
+    throttledFlush.current = throttle(() => {
       if (moveBuffer.current.length === 0) return;
       sendJsonMessage([
         1,
@@ -99,8 +99,12 @@ const DrawingBoard = ({
         toolbar.current.tool,
       ]);
       moveBuffer.current = [];
-    }, 32),
-  );
+    }, 32);
+    return () => {
+      throttledFlush.current?.cancel();
+      throttledFlush.current=null
+    };
+  }, [sendJsonMessage]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -165,13 +169,13 @@ const DrawingBoard = ({
       ctx.moveTo(x, y);
       moveBuffer.current.push(x, y);
       currentStroke.current?.points.push(x, y);
-      throttledFlush.current();
+    if(throttledFlush.current) throttledFlush.current();
     };
 
     const endDraw = () => {
       if (!isDrawing.current) return;
       isDrawing.current = false;
-      throttledFlush.current.flush();
+      if(throttledFlush.current) throttledFlush.current.flush();
       ctx.beginPath();
       if (currentStroke.current && currentStroke.current.points.length > 2) {
         strokeHistory.current.push(currentStroke.current);
@@ -205,7 +209,11 @@ const DrawingBoard = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "z") {
         e.preventDefault();
-        e.shiftKey ? redo() : undo();
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
       }
       if ((e.ctrlKey || e.metaKey) && e.key === "y") {
         e.preventDefault();
@@ -231,7 +239,7 @@ const DrawingBoard = ({
       canvas.removeEventListener("touchmove", handleTouchMove);
       canvas.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("keydown", handleKeyDown);
-      throttledFlush.current.cancel();
+      if(throttledFlush.current) throttledFlush.current.cancel();
     };
   }, [undo, redo, sendJsonMessage]);
 
