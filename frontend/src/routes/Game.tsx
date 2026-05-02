@@ -5,7 +5,7 @@ import StartedGame from "../components/StartedGame";
 import LobbyGame from "../components/lobby/LobbyGame";
 import ScoreBoard from "../components/ScoreBoard";
 import type { IncomingWebSocketMessage, RoomResponse } from "../types";
-import { useSocketFunction } from "../zustand/sockets";
+import { useSettingsChange, useSocketFunction } from "../zustand/sockets";
 import { useAvatarChange } from "../zustand/avatar";
 import { random151Pokemon, STORAGE_KEY } from "../utils/randomNumbers";
 import { toast } from "react-toastify";
@@ -80,7 +80,7 @@ const Game = () => {
       fetchData();
     }
   }, [gameId]);
-  const { sendJsonMessage, lastJsonMessage } =
+  const { sendJsonMessage} =
     useWebSocket<IncomingWebSocketMessage>(wsUrl, {
       share: true,
       reconnectAttempts: 10,
@@ -91,44 +91,47 @@ const Game = () => {
         timeout: 60000,
         interval: 25000,
       },
-      onMessage:(e)=>{
-        const data=JSON.parse(e.data) as IncomingWebSocketMessage
-        if(Array.isArray(data)){
-          useDrawingSocket.getState().setDrawingData(data)
-          return
+      onMessage: (e) => {
+        const data = JSON.parse(e.data) as IncomingWebSocketMessage;
+        if (Array.isArray(data)) {
+          useDrawingSocket.getState().setDrawingData(data);
+          return;
         }
-      }
-    });
-  useEffect(() => {
-    if (!lastJsonMessage) return;
-    if (Array.isArray(lastJsonMessage)) {
-      return;
-    }
-    if (lastJsonMessage.type === "Room_Update") {
-      setRoomContent(lastJsonMessage.room);
-    }
-    if (lastJsonMessage.type === "Timer_Tick") {
-      useSocketFunction
-        .getState()
-        .setTimeReamining(lastJsonMessage.timeRemaining);
-    }
-    if (lastJsonMessage.type === "Hint") {
-      setLastJsonMessage(lastJsonMessage);
-    }
-    if (lastJsonMessage.type === "Setting_Up") {
-      setLastJsonMessage(lastJsonMessage);
-    }
-    if (lastJsonMessage.type === "Guess_Result") {
-      if (lastJsonMessage.correct) {
-        toast(`You guessed the word!`);
-      } else {
-        toast(`You guessed the word incorrectly
-            you were ${lastJsonMessage.distance} away
+        if (data.type === "Setting_Up") {
+          useSettingsChange.getState().setSettings(data.settings);
+        }
+        if (data.type === "Room_Update") {
+          if (!data.room) {
+            setError("Room not found");
+            setLoading(true);
+            return;
+          }
+          setLoading(false);
+          setRoomContent(data.room);
+          if(!useSettingsChange.getState().settings){
+            useSettingsChange.getState().setSettings(data.room.settings);
+          }
+        }
+        if (data.type === "Timer_Tick") {
+          useSocketFunction.getState().setTimeReamining(data.timeRemaining);
+        }
+        if (data.type === "Hint") {
+          setLastJsonMessage(data);
+        }
+        if (data.type === "Setting_Up") {
+          setLastJsonMessage(data);
+        }
+        if (data.type === "Guess_Result") {
+          if (data.correct) {
+            toast(`You guessed the word!`);
+          } else {
+            toast(`You guessed the word incorrectly
+            you were ${data.distance} away
           `);
-      }
-    }
-    setLastJsonMessage(lastJsonMessage);
-  }, [lastJsonMessage]);
+          }
+        }
+      },
+    });
   useEffect(() => {
     if (!window.localStorage.getItem(STORAGE_KEY)) {
       const randomAvatar = random151Pokemon();
@@ -156,7 +159,7 @@ const Game = () => {
           sendJsonMessage={sendJsonMessage}
         />
       ) : (
-        <LobbyGame room={roomContent} sendJsonMessage={sendJsonMessage} />
+        <LobbyGame sendJsonMessage={sendJsonMessage} />
       )}
     </div>
   );

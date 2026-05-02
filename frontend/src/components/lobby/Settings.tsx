@@ -1,62 +1,93 @@
 import React from "react";
 import type { OutgoingWebSocketMessage, Room } from "../../types";
+import { useSettingsChange } from "../../zustand/sockets";
 
-const Settings = ({ room, sendJsonMessage }: { room: Room; sendJsonMessage: (msg: OutgoingWebSocketMessage) => void }) => {
+const Settings = ({disabled, sendJsonMessage }: { disabled: boolean; sendJsonMessage: (msg: OutgoingWebSocketMessage) => void }) => {
   const updateSettings = (settings: Partial<Room["settings"]>) =>
     sendJsonMessage({ type: "Update_Settings", settings });
-
-  const userId = window.localStorage.getItem("pokribble-user-id");
-  const disabled = userId !== room.owner;
+  const settings=useSettingsChange((s)=>s.settings)
+  const setSettings=useSettingsChange((s)=>s.setSettings)
+  if(!settings){
+    return <div>Loading...</div>
+  }
   return (
     <div>
       {[
         {
           label: "Max Players",
-          canDec: room.settings.maxPlayers > 3,
-          canInc: room.settings.maxPlayers < 10,
-          onDec: () =>
+          canDec: settings.maxPlayers > 3,
+          canInc: settings.maxPlayers < 10,
+          onDec: () =>{
+            setSettings({
+              ...settings,
+              maxPlayers: settings.maxPlayers - 1,
+            })
             updateSettings({
-              ...room.settings,
-              maxPlayers: room.settings.maxPlayers - 1,
-            }),
-          onInc: () =>
+              ...settings,
+              maxPlayers: settings.maxPlayers - 1,
+            })},
+          onInc: () =>{
+            setSettings({
+              ...settings,
+              maxPlayers: settings.maxPlayers + 1,
+            })
             updateSettings({
-              ...room.settings,
-              maxPlayers: room.settings.maxPlayers + 1,
-            }),
-          display: `${room.settings.maxPlayers}`,
-        },
+              ...settings,
+              maxPlayers: settings.maxPlayers + 1,
+            })},
+          display: `${settings.maxPlayers}`,
+        },  
         {
           label: "Rounds",
-          canDec: room.settings.maxRounds > 1,
-          canInc: room.settings.maxRounds < 10,
-          onDec: () =>
+          canDec: settings.maxRounds > 1,
+          canInc: settings.maxRounds < 10,
+          onDec: () => {
+            setSettings({
+              ...settings,
+              maxRounds: settings.maxRounds - 1,
+            })
             updateSettings({
-              ...room.settings,
-              maxRounds: room.settings.maxRounds - 1,
-            }),
-          onInc: () =>
+              ...settings,
+              maxRounds: settings.maxRounds - 1,
+            })
+          },
+          onInc: () => {
+            setSettings({
+              ...settings,
+              maxRounds: settings.maxRounds + 1,
+            })
             updateSettings({
-              ...room.settings,
-              maxRounds: room.settings.maxRounds + 1,
-            }),
-          display: `${room.settings.maxRounds}`,
+              ...settings,
+              maxRounds: settings.maxRounds + 1,
+            })
+          },
+          display: `${settings.maxRounds}`,
         },
         {
           label: "Time per Round",
-          canDec: room.settings.maxTime > 10000,
-          canInc: room.settings.maxTime < 60000,
-          onDec: () =>
+          canDec: settings.maxTime > 10000,
+          canInc: settings.maxTime < 60000,
+          onDec: () => {
+            setSettings({
+              ...settings,
+              maxTime: settings.maxTime - 5000,
+            })
             updateSettings({
-              ...room.settings,
-              maxTime: room.settings.maxTime - 5000,
-            }),
-          onInc: () =>
+              ...settings,
+              maxTime: settings.maxTime - 5000,
+            })
+          },
+          onInc: () => {
+            setSettings({
+              ...settings,
+              maxTime: settings.maxTime + 5000,
+            })
             updateSettings({
-              ...room.settings,
-              maxTime: room.settings.maxTime + 5000,
-            }),
-          display: `${room.settings.maxTime / 1000}s`,
+              ...settings,
+              maxTime: settings.maxTime + 5000,
+            })
+          },
+          display: `${settings.maxTime / 1000}s`,
         },
       ].map((item) => (
         <div

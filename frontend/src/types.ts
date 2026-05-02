@@ -69,6 +69,7 @@ export type IncomingWebSocketMessage =
     }
   | {
       type: "Setting_Up";
+      settings:Room["settings"]
     }
   | {
       type: "Timer_Tick";

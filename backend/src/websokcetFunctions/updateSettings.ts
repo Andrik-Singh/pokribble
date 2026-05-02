@@ -1,4 +1,4 @@
-import { broadcastRoomState } from "../broadcast.js";
+import { broadcastRoomState, broadcastSettings } from "../broadcast.js";
 import { Room } from "../utils.js";
 
 export const updateSettings = (
@@ -57,5 +57,5 @@ export const updateSettings = (
     }
     myRoom.settings.generation = generation;
   }
-  broadcastRoomState(myRoom);
+  broadcastSettings(myRoom)
 };

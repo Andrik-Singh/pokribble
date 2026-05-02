@@ -39,3 +39,17 @@ export function broadcastTimerTick(myRoom: Room) {
     });
   });
 }
+export function broadcastSettings(myRoom: Room) {
+  const payload = JSON.stringify({
+    type: "Setting_Up",
+    settings: myRoom.settings,
+  });
+  console.log(payload)
+  myRoom.players.forEach((p) => {
+    if (!(p.playerId === myRoom.owner)) {
+      p.socketReference?.send(payload, {
+        compress: false,
+      });
+    }
+  });
+}

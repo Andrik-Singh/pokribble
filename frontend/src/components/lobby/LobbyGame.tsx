@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
-import type { OutgoingWebSocketMessage, Room } from "../../types";
+import type { OutgoingWebSocketMessage } from "../../types";
 import Settings from "./Settings";
+import { useSettingsChange, useSocketFunction } from "../../zustand/sockets";
 
 type GenerationIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type GenerationListType = { name: string; index: GenerationIndex }[];
@@ -18,18 +19,18 @@ const generationsList: GenerationListType = [
 ];
 
 type LobbyGameProps = {
-  room: Room;
   sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
 };
 
-const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
+const LobbyGame = ({ sendJsonMessage }: LobbyGameProps) => {
   const link = window.location.origin + window.location.pathname;
-
+  const room=useSocketFunction((s)=>s.roomContent)!
+  const settings=useSettingsChange((s)=>s.settings) ?? room.settings
   const activeGeneration = generationsList.filter((gen) =>
-    room.settings.generation.includes(gen.index),
+    settings.generation.includes(gen.index),
   );
   const inactiveGeneration = generationsList.filter(
-    (gen) => !room.settings.generation.includes(gen.index),
+    (gen) => !settings.generation.includes(gen.index),
   );
 
   const toggleGeneration = (index: GenerationIndex) =>
@@ -100,7 +101,7 @@ const LobbyGame = ({ room, sendJsonMessage }: LobbyGameProps) => {
               Game Rules
             </h2>
             <div className="flex flex-col gap-3">
-              <Settings room={room} sendJsonMessage={sendJsonMessage} />
+              <Settings disabled={disabled} sendJsonMessage={sendJsonMessage} />
             </div>
           </div>
         </div>
