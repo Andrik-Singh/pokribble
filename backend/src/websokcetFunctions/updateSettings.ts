@@ -41,13 +41,7 @@ export const updateSettings = (
     return;
   }
   const { maxPlayers, maxRounds, maxTime, generation } = message.settings;
-  myRoom.settings = {
-    ...myRoom.settings,
-    maxPlayers,
-    maxRounds,
-    maxTime,
-  };
-  if (generation) {
+  if (generation !== undefined) {
     if (
       !Array.isArray(generation) ||
       generation.length === 0 ||
@@ -55,7 +49,14 @@ export const updateSettings = (
     ) {
       return;
     }
-    myRoom.settings.generation = generation;
   }
+
+  myRoom.settings = {
+    ...myRoom.settings,
+    maxPlayers,
+    maxRounds,
+    maxTime,
+    ...(generation !== undefined ? { generation } : {}),
+  };
   broadcastSettings(myRoom)
 };

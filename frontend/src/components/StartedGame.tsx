@@ -19,10 +19,6 @@ const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
   if(!screen){
     return <div>Initializing</div>;
   }
-
-  if (!screen) {
-    return <div>Initializing</div>;
-  }
   if (screen.type === "Pokemon_Choose") {
     return (
       <ChoosingPokemon
