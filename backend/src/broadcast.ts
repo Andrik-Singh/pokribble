@@ -44,7 +44,6 @@ export function broadcastSettings(myRoom: Room) {
     type: "Setting_Up",
     settings: myRoom.settings,
   });
-  console.log(payload)
   myRoom.players.forEach((p) => {
     if (!(p.playerId === myRoom.owner)) {
       p.socketReference?.send(payload, {

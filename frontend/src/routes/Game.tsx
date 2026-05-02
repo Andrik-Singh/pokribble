@@ -1,37 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import useWebSocket from "react-use-websocket";
 import StartedGame from "../components/StartedGame";
 import LobbyGame from "../components/lobby/LobbyGame";
 import ScoreBoard from "../components/ScoreBoard";
 import type { IncomingWebSocketMessage, RoomResponse } from "../types";
-import { useSettingsChange, useSocketFunction } from "../zustand/sockets";
+import {  useSocketFunction } from "../zustand/sockets";
 import { useAvatarChange } from "../zustand/avatar";
 import { random151Pokemon, STORAGE_KEY } from "../utils/randomNumbers";
-import { toast } from "react-toastify";
 import Canvas404 from "./NotFound";
 import { API_URL, WS_URL } from "../utils/config";
-import { useDrawingSocket } from "../zustand/drawing";
+import { handleWsMessage } from "../utils/wsHandlers";
 
 const backendUrl = API_URL + "/api";
-const baseWsUrl = WS_URL + "/api/ws";
 const Game = () => {
-  const { roomContent, setRoomContent, setLastJsonMessage } =
+  const { roomContent, setRoomContent} =
     useSocketFunction();
   const setAvatar = useAvatarChange((s) => s.setAvatar);
   const avatar = useAvatarChange((s) => s.avatar);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [currentUserName, setCurrentUserName] = useState<string | null>(null);
+  const [user, setUser] = useState({
+    id: localStorage.getItem("pokribble-user-id"),
+    name: localStorage.getItem("pokribble-user-name"),
+  });
   const { gameId } = useParams();
-  const wsUrl = currentUserId
-    ? `${baseWsUrl}/${gameId}?${new URLSearchParams({
-        userId: currentUserId,
-        userName: currentUserName ?? "",
-        avatar: avatar ?? random151Pokemon(),
-      }).toString()}`
-    : null;
+
+  useEffect(() => {
+    if (!window.localStorage.getItem(STORAGE_KEY)) {
+      const randomAvatar = random151Pokemon();
+      setAvatar(randomAvatar);
+      window.localStorage.setItem(STORAGE_KEY, randomAvatar);
+      return;
+    }
+    setAvatar(window.localStorage.getItem(STORAGE_KEY) ?? "");
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,12 +59,14 @@ const Game = () => {
         const data: RoomResponse = await res.json();
         if (data.userId) {
           localStorage.setItem("pokribble-user-id", data.userId);
-          setCurrentUserId(data.userId);
         }
         if (data.userName) {
           localStorage.setItem("pokribble-user-name", data.userName);
-          setCurrentUserName(data.userName);
         }
+        setUser({
+          id: data.userId,
+          name: data.userName,
+        });
         if (!data.room) {
           setError(data.text);
           setLoading(false);
@@ -80,67 +85,38 @@ const Game = () => {
       fetchData();
     }
   }, [gameId]);
-  const { sendJsonMessage} =
-    useWebSocket<IncomingWebSocketMessage>(wsUrl, {
-      share: true,
-      reconnectAttempts: 10,
-      reconnectInterval: 1000,
-      heartbeat: {
-        message: "ping",
-        returnMessage: "pong",
-        timeout: 60000,
-        interval: 25000,
-      },
-      onMessage: (e) => {
-        const data = JSON.parse(e.data) as IncomingWebSocketMessage;
-        if (Array.isArray(data)) {
-          useDrawingSocket.getState().setDrawingData(data);
-          return;
-        }
-        if (data.type === "Setting_Up") {
-          useSettingsChange.getState().setSettings(data.settings);
-        }
-        if (data.type === "Room_Update") {
-          if (!data.room) {
-            setError("Room not found");
-            setLoading(true);
-            return;
-          }
-          setLoading(false);
-          setRoomContent(data.room);
-          if(!useSettingsChange.getState().settings){
-            useSettingsChange.getState().setSettings(data.room.settings);
-          }
-        }
-        if (data.type === "Timer_Tick") {
-          useSocketFunction.getState().setTimeReamining(data.timeRemaining);
-        }
-        if (data.type === "Hint") {
-          setLastJsonMessage(data);
-        }
-        if (data.type === "Setting_Up") {
-          setLastJsonMessage(data);
-        }
-        if (data.type === "Guess_Result") {
-          if (data.correct) {
-            toast(`You guessed the word!`);
-          } else {
-            toast(`You guessed the word incorrectly
-            you were ${data.distance} away
-          `);
-          }
-        }
-      },
+  const wsUrl = useMemo(() => {
+    if (!user.id || !gameId) return null;
+    const params = new URLSearchParams({
+      userId: user.id,
+      userName: user.name ?? "",
+      avatar: avatar ?? "",
     });
-  useEffect(() => {
-    if (!window.localStorage.getItem(STORAGE_KEY)) {
-      const randomAvatar = random151Pokemon();
-      setAvatar(randomAvatar);
-      window.localStorage.setItem(STORAGE_KEY, randomAvatar);
-      return;
-    }
-    setAvatar(window.localStorage.getItem(STORAGE_KEY) ?? "");
-  }, []);
+    return `${WS_URL}/api/ws/${gameId}?${params.toString()}`;
+  }, [user, gameId, avatar]);
+  const { sendJsonMessage } = useWebSocket<IncomingWebSocketMessage>(wsUrl, {
+    share: true,
+    reconnectAttempts: 10,
+    reconnectInterval: 1000,
+    heartbeat: {
+      message: "ping",
+      returnMessage: "pong",
+      timeout: 60000,
+      interval: 25000,
+    },
+    onMessage: (e) => {
+      let data;
+      try {
+        data = JSON.parse(e.data) as IncomingWebSocketMessage;
+      } catch (err) {
+        console.error(err);
+        setError("Received invalid data from server");
+        return;
+      }
+      handleWsMessage(data, setError);
+    },
+  });
+
   if (loading) return <div>Loading</div>;
   if (error)
     return (
@@ -155,7 +131,7 @@ const Game = () => {
         <ScoreBoard sendJsonMessage={sendJsonMessage} />
       ) : roomContent.started ? (
         <StartedGame
-          currentUserId={currentUserId}
+          currentUserId={user.id}
           sendJsonMessage={sendJsonMessage}
         />
       ) : (

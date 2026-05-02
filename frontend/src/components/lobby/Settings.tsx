@@ -1,4 +1,3 @@
-import React from "react";
 import type { OutgoingWebSocketMessage, Room } from "../../types";
 import { useSettingsChange } from "../../zustand/sockets";
 
