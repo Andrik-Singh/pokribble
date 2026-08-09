@@ -81,9 +81,9 @@ export default async function loadGames(fastify: FastifyInstance) {
         connection.close();
         return;
       }
-      if(!myRoom.owner){
+      if (!myRoom.owner) {
         myRoom.owner = userId;
-      } 
+      }
       myRoom.players.set(userId, {
         playerId: userId,
         score: 0,
@@ -96,7 +96,18 @@ export default async function loadGames(fastify: FastifyInstance) {
     broadcastRoomState(myRoom);
     connection.on("message", async (raw) => {
       try {
-        const message = JSON.parse(raw.toString());
+        const str = raw.toString();
+        if (str == "ping") {
+          console.log("pong");
+          return;
+        }
+        let message = JSON.parse(raw.toString());
+        try {
+          message = JSON.parse(raw.toString());
+        } catch (e) {
+          console.error("Invalid JSON message received:", raw.toString());
+          return;
+        }
         if (Array.isArray(message)) {
           sendDrawing(message, myRoom);
           return;

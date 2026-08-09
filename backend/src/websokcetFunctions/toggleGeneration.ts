@@ -8,6 +8,7 @@ export const toggleGeneration = (
   },
 ) => {
   const currentGens = myRoom.settings.generation;
+  
   if (currentGens.includes(message.generation)) {
     if (
       currentGens.length <= 1 ||

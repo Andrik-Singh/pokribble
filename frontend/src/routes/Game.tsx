@@ -106,6 +106,10 @@ const Game = () => {
     },
     onMessage: (e) => {
       let data;
+      if(e.data === "pong"){
+        console.log("pong received")
+        return
+      }
       try {
         data = JSON.parse(e.data) as IncomingWebSocketMessage;
       } catch (err) {
