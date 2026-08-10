@@ -1,7 +1,7 @@
 import type { OutgoingWebSocketMessage } from "../../types";
 import Settings from "./Settings";
 import { useSettingsChange, useSocketFunction } from "../../zustand/sockets";
-import { Bounce, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 type GenerationIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type GenerationListType = { name: string; index: GenerationIndex }[];
@@ -38,6 +38,9 @@ const LobbyGame = ({ sendJsonMessage }: LobbyGameProps) => {
     const newGens = settings.generation.includes(index)
       ? settings.generation.filter((g) => g !== index)
       : ([...settings.generation, index].sort() as GenerationIndex[]);
+    console.log("OLD:", settings.generation);
+    console.log("NEW:", newGens);
+
     setSettings({
       ...settings,
       generation: newGens,

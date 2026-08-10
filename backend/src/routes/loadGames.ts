@@ -101,7 +101,7 @@ export default async function loadGames(fastify: FastifyInstance) {
           console.log("pong");
           return;
         }
-        let message = JSON.parse(raw.toString());
+        let message;
         try {
           message = JSON.parse(raw.toString());
         } catch (e) {
@@ -121,7 +121,6 @@ export default async function loadGames(fastify: FastifyInstance) {
         const handler =
           webSocketFunction[messageType as keyof typeof webSocketFunction];
         await handler(myRoom, message, userId);
-        return;
       } catch (e) {
         console.error(e);
       }
