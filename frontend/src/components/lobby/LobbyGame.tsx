@@ -1,7 +1,7 @@
-import { toast } from "react-toastify";
 import type { OutgoingWebSocketMessage } from "../../types";
 import Settings from "./Settings";
 import { useSettingsChange, useSocketFunction } from "../../zustand/sockets";
+import { toast } from "react-toastify";
 
 type GenerationIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type GenerationListType = { name: string; index: GenerationIndex }[];
@@ -24,8 +24,9 @@ type LobbyGameProps = {
 
 const LobbyGame = ({ sendJsonMessage }: LobbyGameProps) => {
   const link = window.location.origin + window.location.pathname;
-  const room=useSocketFunction((s)=>s.roomContent)!
-  const settings=useSettingsChange((s)=>s.settings) ?? room.settings
+  const room = useSocketFunction((s) => s.roomContent)!;
+  const settings = useSettingsChange((s) => s.settings) ?? room.settings;
+  const setSettings = useSettingsChange((s) => s.setSettings);
   const activeGeneration = generationsList.filter((gen) =>
     settings.generation.includes(gen.index),
   );
@@ -33,9 +34,22 @@ const LobbyGame = ({ sendJsonMessage }: LobbyGameProps) => {
     (gen) => !settings.generation.includes(gen.index),
   );
 
-  const toggleGeneration = (index: GenerationIndex) =>
-    sendJsonMessage({ type: "Toggle_Generation", generation: index });
+  const toggleGeneration = (index: GenerationIndex) => {
+    const newGens = settings.generation.includes(index)
+      ? settings.generation.filter((g) => g !== index)
+      : ([...settings.generation, index].sort() as GenerationIndex[]);
+    console.log("OLD:", settings.generation);
+    console.log("NEW:", newGens);
 
+    setSettings({
+      ...settings,
+      generation: newGens,
+    });
+    sendJsonMessage({
+      type: "Toggle_Generation",
+      generation: index,
+    });
+  };
   const userId = window.localStorage.getItem("pokribble-user-id");
   const disabled = userId !== room.owner;
   return (
@@ -76,7 +90,10 @@ const LobbyGame = ({ sendJsonMessage }: LobbyGameProps) => {
                   <div
                     key={player.playerId}
                     title={owner ? "Room Owner" : undefined}
-                    className={"flex items-center gap-2  border border-amber-200 rounded-full pl-1 pr-3 py-1 transition-colors" + (owner ? " bg-green-400" : " bg-amber-50")}
+                    className={
+                      "flex items-center gap-2  border border-amber-200 rounded-full pl-1 pr-3 py-1 transition-colors" +
+                      (owner ? " bg-green-400" : " bg-amber-50")
+                    }
                   >
                     <img
                       className="w-8 h-8 rounded-full object-cover bg-amber-100"
@@ -139,7 +156,7 @@ const LobbyGame = ({ sendJsonMessage }: LobbyGameProps) => {
                     key={gen.index}
                     onClick={() => toggleGeneration(gen.index)}
                     disabled={disabled}
-                    className="text-xs font-bold px-3 py-1.5 rounded-lg bg-amber-50 text-amber-400 border border-amber-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95"
+                    className="text-xs font-bold px-3 py-1.5 rounded-lg bg-amber-50 text-amber-400 border border-amber-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {gen.name}
                   </button>
@@ -161,9 +178,9 @@ const LobbyGame = ({ sendJsonMessage }: LobbyGameProps) => {
               }
               sendJsonMessage({ type: "Game_Start" });
             }}
-            className="bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white font-extrabold text-base px-12 py-4 rounded-2xl shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 hover:-translate-y-0.5 active:translate-y-0.5 transition-all tracking-wide cursor-pointer"
+            className="bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white font-extrabold text-base px-12 py-4 rounded-2xl shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 hover:-translate-y-0.5 active:translate-y-0.5 transition-all tracking-wide cursor-pointer disabled:bg-amber-200 disabled:text-amber-400 disabled:shadow-none disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:translate-y-0"
           >
-            Start Game
+            {disabled ? "Waiting for room owner…" : "Start Battle!"}
           </button>
         </div>
       </div>

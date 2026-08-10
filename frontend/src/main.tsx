@@ -6,6 +6,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import Game from "./routes/Game.tsx";
 import { ToastContainer } from "react-toastify";
 import NotFound from "./routes/NotFound.tsx";
+import "react-toastify/dist/ReactToastify.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

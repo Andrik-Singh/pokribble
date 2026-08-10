@@ -73,8 +73,10 @@ export function handleWsMessage(
       }
     },
   };
-  const handler = handlers[narrwoedData.type] as ((msg: WsMessageObject) => void) | undefined;
-if (handler) {
-  handler(narrwoedData);
-}
+  const handler = handlers[narrwoedData.type] as
+    | ((msg: WsMessageObject) => void)
+    | undefined;
+  if (handler) {
+    handler(narrwoedData);
+  }
 }
