@@ -38,9 +38,6 @@ export function handleWsMessage(
       if (!useSettingsChange.getState().settings) {
         useSettingsChange.getState().setSettings(msg.room.settings);
       }
-      useScreenChange
-        .getState()
-        .setScreen({ type: "Room_Update", room: msg.room });
     },
     Timer_Tick: (msg) => {
       useSocketFunction.getState().setTimeReamining(msg.timeRemaining);
@@ -49,6 +46,7 @@ export function handleWsMessage(
       useSocketFunction.getState().setLastJsonMessage(msg);
     },
     Pokemon_Choose: (msg) => {
+      console.log("Pokemon_Choose payload:", msg);
       useScreenChange.getState().setScreen({
         type: "Pokemon_Choose",
         pokemon: msg.pokemon,
@@ -72,6 +70,9 @@ export function handleWsMessage(
         toast(`Incorrect — you were ${msg.distance} away`);
       }
     },
+    Drawing_Begin: () => {
+      useScreenChange.getState().setScreen({ type: "Drawing_Begin" })
+    }
   };
   const handler = handlers[narrwoedData.type] as
     | ((msg: WsMessageObject) => void)

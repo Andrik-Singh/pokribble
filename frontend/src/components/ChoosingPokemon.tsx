@@ -41,11 +41,13 @@ const ChoosingPokemon = ({
             {pokemon.map((p, index) => (
               <button
                 key={index}
-                onClick={() =>
+                onClick={() => {
+                  console.log("Sending pokemon")
                   sendJsonMessage({
                     type: "Pokemon_Chosen",
                     pokemon: p,
                   })
+                }
                 }
                 className="bg-linear-to-br from-indigo-500 to-purple-600 text-white px-6 py-5 rounded-2xl font-bold text-lg shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 capitalize cursor-pointer flex flex-col items-center gap-3 min-w-[140px]"
               >

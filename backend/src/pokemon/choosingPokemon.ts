@@ -34,6 +34,7 @@ export async function choosingPokemon(myRoom: Room, drawerIndex: number) {
       }),
     );
   }
+  console.log(pokemon)
   for (const player of drawingPlayers) {
     player.socketReference?.send(
       JSON.stringify({

@@ -28,6 +28,16 @@ export function broadcastRoomState(myRoom: Room) {
     p.socketReference.send(isDrawer ? fullPayload : hiddenPayload);
   });
 }
+export function broadCastPokemonChange(myRoom: Room) {
+  const payload = JSON.stringify({
+    type: "Drawing_Begin"
+  })
+  myRoom.players.forEach((p) => {
+    p.socketReference?.send(payload, {
+      compress: false
+    })
+  })
+}
 export function broadcastTimerTick(myRoom: Room) {
   const payload = JSON.stringify({
     type: "Timer_Tick",

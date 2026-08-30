@@ -15,11 +15,12 @@ export type TimeoutPayload = {
   drawer: string;
 };
 const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
-  const screen=useScreenChange((s)=>s.screen)
-  if(!screen){
+  const screen = useScreenChange((s) => s.screen)
+  if (!screen) {
     return <div>Initializing</div>;
   }
   if (screen.type === "Pokemon_Choose") {
+    console.log("Pokemon choose")
     return (
       <ChoosingPokemon
         pokemon={screen.pokemon}
@@ -34,9 +35,16 @@ const StartedGame = ({ currentUserId, sendJsonMessage }: StartedGameProps) => {
   if (screen.type === "Setting_Up") {
     return <div>Setting Up</div>;
   }
-  return (
-    <MainGame currentUserId={currentUserId} sendJsonMessage={sendJsonMessage} />
-  );
+  if (screen.type === "Drawing_Begin") {
+
+    return (
+      <MainGame currentUserId={currentUserId} sendJsonMessage={sendJsonMessage} />
+    );
+  } else {
+    return (
+      <div>Erropr</div>
+    )
+  }
 };
 
 export default StartedGame;

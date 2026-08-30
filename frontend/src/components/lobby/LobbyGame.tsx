@@ -38,9 +38,6 @@ const LobbyGame = ({ sendJsonMessage }: LobbyGameProps) => {
     const newGens = settings.generation.includes(index)
       ? settings.generation.filter((g) => g !== index)
       : ([...settings.generation, index].sort() as GenerationIndex[]);
-    console.log("OLD:", settings.generation);
-    console.log("NEW:", newGens);
-
     setSettings({
       ...settings,
       generation: newGens,

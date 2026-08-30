@@ -5,7 +5,7 @@ import StartedGame from "../components/StartedGame";
 import LobbyGame from "../components/lobby/LobbyGame";
 import ScoreBoard from "../components/ScoreBoard";
 import type { IncomingWebSocketMessage, RoomResponse } from "../types";
-import {  useSocketFunction } from "../zustand/sockets";
+import { useSocketFunction } from "../zustand/sockets";
 import { useAvatarChange } from "../zustand/avatar";
 import { random151Pokemon, STORAGE_KEY } from "../utils/randomNumbers";
 import Canvas404 from "./NotFound";
@@ -14,7 +14,7 @@ import { handleWsMessage } from "../utils/wsHandlers";
 
 const backendUrl = API_URL + "/api";
 const Game = () => {
-  const { roomContent, setRoomContent} =
+  const { roomContent, setRoomContent } =
     useSocketFunction();
   const setAvatar = useAvatarChange((s) => s.setAvatar);
   const avatar = useAvatarChange((s) => s.avatar);
@@ -106,8 +106,7 @@ const Game = () => {
     },
     onMessage: (e) => {
       let data;
-      if(e.data === "pong"){
-        console.log("pong received")
+      if (e.data === "pong") {
         return
       }
       try {

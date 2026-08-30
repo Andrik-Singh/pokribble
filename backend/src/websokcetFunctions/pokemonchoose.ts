@@ -1,4 +1,4 @@
-import { broadcastRoomState, broadcastTimerTick } from "../broadcast.js";
+import { broadCastPokemonChange, broadcastRoomState, broadcastTimerTick } from "../broadcast.js";
 import { getPokemonHint } from "../pokemon/getPokemonHint.js";
 import { Room } from "../utils.js";
 import { timeout } from "./timeout.js";
@@ -24,10 +24,11 @@ export const pokemonChoose = async (
   },
   userId: string,
 ) => {
+  console.log("Pokemon choosen", message.pokemon)
   if (userId !== myRoom.round.drawerId) return;
   myRoom.round.pokemon = message.pokemon;
   myRoom.round.timeRemaining = myRoom.settings.maxTime;
-  broadcastRoomState(myRoom);
+  broadCastPokemonChange(myRoom);
   if (myRoom.round.timerId) {
     clearTimeout(myRoom.round.timerId);
     myRoom.round.timerId = undefined;
@@ -61,9 +62,9 @@ export const pokemonChoose = async (
         myRoom,
         hints
           ? {
-              type: "BaseStat",
-              value: hints.totalBaseStat.toString(),
-            }
+            type: "BaseStat",
+            value: hints.totalBaseStat.toString(),
+          }
           : undefined,
       );
     }

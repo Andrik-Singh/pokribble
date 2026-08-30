@@ -29,7 +29,7 @@ export type Room = {
   started: boolean;
   gameEnded?: boolean;
   round: Round;
-  owner:string;
+  owner: string;
 };
 export type RoomResponse = {
   text: string;
@@ -39,60 +39,62 @@ export type RoomResponse = {
 };
 export type IncomingWebSocketMessage =
   | {
-      type: "Room_Update";
-      room: Room;
-    }
+    type: "Room_Update";
+    room: Room;
+  }
   | {
-      type: "Timeout";
-      drawer: string;
-      pokemon: PokemonDescription;
-    }
+    type: "Timeout";
+    drawer: string;
+    pokemon: PokemonDescription;
+  }
   | {
-      type: "Return_To_Lobby";
-    }
+    type: "Return_To_Lobby";
+  }
   | {
-      type: "Pokemon_Choose";
-      text: string;
-      pokemon?: PokemonDescription[];
-    }
+    type: "Pokemon_Choose";
+    text: string;
+    pokemon?: PokemonDescription[];
+  }
   | {
-      type: "Guess_Result";
-      correct: boolean;
-      distance?: number;
-    }
+    type: "Guess_Result";
+    correct: boolean;
+    distance?: number;
+  }
   | {
-      type: "Hint";
-      value: {
-        type: string;
-        value: string | string[];
-      };
-    }
+    type: "Hint";
+    value: {
+      type: string;
+      value: string | string[];
+    };
+  }
   | {
-      type: "Setting_Up";
-      settings:Room["settings"]
-    }
+    type: "Setting_Up";
+    settings: Room["settings"]
+  }
   | {
-      type: "Timer_Tick";
-      timeRemaining: number;
-    }
-    |{
-      type:"Wait"
-    }
+    type: "Timer_Tick";
+    timeRemaining: number;
+  }
+  | {
+    type: "Wait"
+  } | {
+    type: "Drawing_Begin"
+  }
   | [number, number, number, string, number, "pen" | "eraser"];
 export type OutgoingWebSocketMessage =
   | { type: "Toggle_Generation"; generation: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 }
   | {
-      type: "Update_Settings";
-      settings: Partial<{
-        maxPlayers: number;
-        generation: (1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)[];
-        maxTime: number;
-        maxRounds: number;
-      }>;
-    }
+    type: "Update_Settings";
+    settings: Partial<{
+      maxPlayers: number;
+      generation: (1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)[];
+      maxTime: number;
+      maxRounds: number;
+    }>;
+  }
   | { type: "Game_Start" }
   | {
-      type: "Pokemon_Chosen";
-      pokemon: { name: string; image: string; id: number };
-    }
+    type: "Pokemon_Chosen";
+    pokemon: { name: string; image: string; id: number };
+  }
   | { type: "Return_To_Lobby" };
