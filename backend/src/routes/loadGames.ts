@@ -5,6 +5,7 @@ import { webSocketFunction } from "../websokcetFunctions/webSocketFunction.js";
 import { sendDrawing } from "../DrawingBoard.js";
 //checks if a room is there or not and checks if the game has started or not and if the user is already in the room or not
 export default async function loadGames(fastify: FastifyInstance) {
+  console.log("🚨 loadGames plugin executing");
   fastify.post("/api/loadGame", async (req, reply) => {
     const body: any = req.body;
     const randomId = crypto.randomUUID();
@@ -99,6 +100,7 @@ export default async function loadGames(fastify: FastifyInstance) {
         const str = raw.toString();
         if (str == "ping") {
           console.log("pong");
+          connection.send("pong");
           return;
         }
         let message;
@@ -108,6 +110,7 @@ export default async function loadGames(fastify: FastifyInstance) {
           console.error("Invalid JSON message received:", raw.toString());
           return;
         }
+        console.log(message)
         if (Array.isArray(message)) {
           sendDrawing(message, myRoom);
           return;
@@ -124,7 +127,6 @@ export default async function loadGames(fastify: FastifyInstance) {
       } catch (e) {
         console.error(e);
       }
-      broadcastRoomState(myRoom);
     });
 
     connection.on("close", () => {

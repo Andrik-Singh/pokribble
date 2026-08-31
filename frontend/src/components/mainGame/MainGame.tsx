@@ -5,13 +5,14 @@ import ClientDrawingBoard from "./ClientDrawingBoard";
 import SideBar from "./SideBar";
 import InputBoard from "./InputBoard";
 import HintSection from "./HintSection";
+import type { OutgoingWebSocketMessage } from "../../types";
 
 const MainGame = ({
   currentUserId,
   sendJsonMessage,
 }: {
   currentUserId: string | null;
-  sendJsonMessage: (msg: any) => void;
+  sendJsonMessage: (msg: OutgoingWebSocketMessage) => void;
 }) => {
   const room = useSocketFunction((s: TSocketFunction) => s.roomContent);
   const lastJsonMessage = useSocketFunction(

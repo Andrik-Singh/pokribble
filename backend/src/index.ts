@@ -13,6 +13,7 @@ const __dirname = path.dirname(__filename);
 const fastify = Fastify({
   logger: true,
 });
+console.log("🚨🚨🚨 THIS IS SRC/INDEX.TS 🚨🚨🚨");
 await fastify.register(fastifyStatic, {
   root: path.join(__dirname, "../frontend"),
 });
@@ -31,10 +32,17 @@ await fastify.register(cors, {
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
 });
-fastify.register(assignGame);
-fastify.register(loadGames);
-redisClient.ping();
-console.log("Redis connected");
+await fastify.register(assignGame);
+await fastify.register(loadGames);
+fastify.addHook("onRequest", async (req) => {
+  console.log("🔥 REQUEST:", req.method, req.url);
+});
+try {
+  await redisClient.ping();
+  console.log("Redis connected");
+} catch (error) {
+  console.error("Redis connection failed:", error);
+}
 const start = async () => {
   try {
     await fastify.listen({
