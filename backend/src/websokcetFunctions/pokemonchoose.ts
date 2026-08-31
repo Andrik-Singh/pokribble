@@ -24,11 +24,17 @@ export const pokemonChoose = async (
   },
   userId: string,
 ) => {
-  console.log("Pokemon choosen", message.pokemon)
   if (userId !== myRoom.round.drawerId) return;
   myRoom.round.pokemon = message.pokemon;
   myRoom.round.timeRemaining = myRoom.settings.maxTime;
   broadCastPokemonChange(myRoom);
+  await new Promise((resolve) => {
+    resolve("Somethihng")
+  }).then(() => {
+    setTimeout(() => {
+      broadcastRoomState(myRoom)
+    }, 100)
+  })
   if (myRoom.round.timerId) {
     clearTimeout(myRoom.round.timerId);
     myRoom.round.timerId = undefined;

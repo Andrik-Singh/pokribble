@@ -116,6 +116,7 @@ const Game = () => {
         setError("Received invalid data from server");
         return;
       }
+      console.log(data)
       handleWsMessage(data, setError);
     },
   });

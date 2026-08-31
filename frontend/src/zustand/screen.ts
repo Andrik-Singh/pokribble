@@ -2,39 +2,41 @@ import { create } from "zustand";
 import type { PokemonDescription, Room } from "../types";
 type Screen =
   | {
-      type: "Room_Update";
-      room: Partial<Room>;
-    }
+    type: "Room_Update";
+    room: Partial<Room>;
+  }
   | {
-      type: "Timeout";
-      drawerId: string;
-      pokemon: PokemonDescription;
-    }
+    type: "Timeout";
+    drawerId: string;
+    pokemon: PokemonDescription;
+  }
   | {
-      type: "Return_To_Lobby";
-    }
+    type: "Return_To_Lobby";
+  }
   | {
-      type: "Pokemon_Choose";
-      text: string;
-      pokemon?: PokemonDescription[];
-    }
+    type: "Pokemon_Choose";
+    text: string;
+    pokemon?: PokemonDescription[];
+  }
   | {
-      type: "Guess_Result";
-      correct: boolean;
-      distance?: number;
-    }
+    type: "Guess_Result";
+    correct: boolean;
+    distance?: number;
+  }
   | {
-      type: "Hint";
-      hint: string;
-    }
+    type: "Hint";
+    hint: string;
+  }
   | {
-      type: "Setting_Up";
-    }| null;
+    type: "Setting_Up";
+  } | {
+    type: "Drawing_Begin"
+  } | null;
 type ScreenState = {
-    screen:Screen,
-    setScreen:(screen:Screen)=>void
+  screen: Screen,
+  setScreen: (screen: Screen) => void
 }
-export const useScreenChange=create<ScreenState>((set)=>({
-    screen:null,
-    setScreen:(screen)=>set({screen})
+export const useScreenChange = create<ScreenState>((set) => ({
+  screen: null,
+  setScreen: (screen) => set({ screen })
 }))
